@@ -1,5 +1,11 @@
 package com.mycompany.programa1matriculacalificaciones.util;
 
-public class Randomizador {
+import java.util.Collections;
+import java.util.List;
 
+public class Randomizador {
+    public static <T> void mezclar(List<T> lista) {
+        if (lista == null) return;
+        Collections.shuffle(lista);
+    }
 }
