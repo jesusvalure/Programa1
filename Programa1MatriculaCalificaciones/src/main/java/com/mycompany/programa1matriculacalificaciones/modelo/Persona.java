@@ -30,4 +30,10 @@ public abstract class Persona {
     public void setContrasenaEncriptada(String c) { 
         this.contrasenaEncriptada = c; 
     }
+
+    // Otros getters y setters según sea necesario
+
+    public String getApellido1() {
+        return apellido1;
+    }
 }

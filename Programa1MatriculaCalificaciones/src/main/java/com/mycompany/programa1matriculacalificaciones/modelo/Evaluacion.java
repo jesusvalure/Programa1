@@ -23,4 +23,18 @@ public class Evaluacion {
 
     public void agregarPregunta(Pregunta p) { preguntas.add(p); }
     public List<Pregunta> getPreguntas() { return preguntas; }
+    public int getIdEvaluacion() { return idEvaluacion; }
+    public void setIdEvaluacion(int idEvaluacion) { this.idEvaluacion = idEvaluacion; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getInstrucciones() { return instrucciones; }
+    public void setInstrucciones(String instrucciones) { this.instrucciones = instrucciones; }
+    public List<String> getObjetivos() { return objetivos; }
+    public void setObjetivos(List<String> objetivos) { this.objetivos = objetivos; }
+    public int getDuracion() { return duracion; }
+    public void setDuracion(int duracion) { this.duracion = duracion; }
+    public boolean isAleatorioPreguntas() { return aleatorioPreguntas; }
+    public void setAleatorioPreguntas(boolean aleatorioPreguntas) { this.aleatorioPreguntas = aleatorioPreguntas; }
+    public boolean isAleatorioOpciones() { return aleatorioOpciones; }
+    public void setAleatorioOpciones(boolean aleatorioOpciones) { this.aleatorioOpciones = aleatorioOpciones; }
 }

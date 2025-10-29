@@ -9,7 +9,7 @@ public class AuthService {
     private Map<String,String> roles = new HashMap<>();
 
     public AuthService() {
-        // ejemplo de usuarios temporales
+        // usuarios de prueba
         usuarios.put("admin", Encriptador.encriptar("1234"));
         roles.put("admin", "Administrador");
 
@@ -21,6 +21,7 @@ public class AuthService {
     }
 
     public String autenticar(String id, String contrasena) {
+        if (id == null || contrasena == null) return null;
         String enc = Encriptador.encriptar(contrasena);
         if (!usuarios.containsKey(id)) return null;
         if (usuarios.get(id).equals(enc)) return roles.get(id);

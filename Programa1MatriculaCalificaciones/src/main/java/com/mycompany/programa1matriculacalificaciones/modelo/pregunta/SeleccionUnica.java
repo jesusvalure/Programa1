@@ -13,6 +13,10 @@ public class SeleccionUnica extends Pregunta {
         this.opciones = opts;
         this.indiceCorrecta = idx;
     }
+    // Getters y setters
+    public List<String> getOpciones() { return opciones; }
+    public int getIndiceCorrecta() { return indiceCorrecta; }
+    
 
     @Override
     public double evaluar(Object respuesta) {

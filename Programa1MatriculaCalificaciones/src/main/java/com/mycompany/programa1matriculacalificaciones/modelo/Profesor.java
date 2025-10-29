@@ -14,5 +14,11 @@ public class Profesor extends Persona {
     }
 
     public void asignarGrupo(Grupo g) { gruposAsignados.add(g); }
+    public List<Grupo> getGruposAsignados() { return gruposAsignados; }
+    public void agregarTitulo(String t) { titulos.add(t); }
+    public void agregarCertificacion(String c) { certificaciones.add(c); }
+    public List<String> getTitulos() { return titulos; }
+    public List<String> getCertificaciones() { return certificaciones; }
+    
 }
 

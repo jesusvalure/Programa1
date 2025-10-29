@@ -17,4 +17,6 @@ public class Matricula {
 
     public Estudiante getEstudiante() { return estudiante; }
     public Grupo getGrupo() { return grupo; }
+    public LocalDate getFechaMatricula() { return fechaMatricula; }
+    
 }

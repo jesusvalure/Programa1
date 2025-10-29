@@ -18,4 +18,8 @@ public class Estudiante extends Persona {
 
     public void agregarTemaInteres(String t) { temasInteres.add(t); }
     public List<Matricula> getMatriculas() { return matriculas; }
+    public void agregarMatricula(Matricula m) { matriculas.add(m); }
+    public List<String> getTemasInteres() { return temasInteres; }
+    public LocalDate getFechaRegistro() { return fechaRegistro; }
+    
 }

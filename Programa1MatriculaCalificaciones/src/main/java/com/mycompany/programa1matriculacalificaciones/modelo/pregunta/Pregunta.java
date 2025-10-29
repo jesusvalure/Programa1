@@ -12,4 +12,5 @@ public abstract class Pregunta {
 
     public abstract double evaluar(Object respuesta);
     public String getDescripcion() { return descripcion; }
+    public int getPuntos() { return puntos; }
 }

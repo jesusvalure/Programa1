@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 
 public class Encriptador {
     public static String encriptar(String texto) {
+        if (texto == null) return null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] digest = md.digest(texto.getBytes());
@@ -11,7 +12,7 @@ public class Encriptador {
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (Exception e) {
-            return texto;
+            return texto; // fallback inseguro
         }
     }
 }
