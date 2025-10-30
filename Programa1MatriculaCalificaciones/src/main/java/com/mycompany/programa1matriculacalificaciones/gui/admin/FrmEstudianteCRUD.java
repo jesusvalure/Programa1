@@ -1,4 +1,3 @@
-// === Archivo: gui/admin/FrmEstudianteCRUD.java ===
 package com.mycompany.programa1matriculacalificaciones.gui.admin;
 
 import javax.swing.*;
@@ -9,24 +8,21 @@ import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmEstudianteCRUD extends JFrame {
     private AdministradorService adminService = new AdministradorService();
-
-    private JTextField txtNombre;
-    private JTextField txtApellido;
-    private JTextField txtId;
-    private JButton btnAgregar, btnListar;
+    private JTextField txtNombre, txtApellido, txtId;
+    private JButton btnAgregar, btnListar, btnEliminar;
     private JTable tabla;
     private DefaultTableModel model;
 
     public FrmEstudianteCRUD() {
         setTitle("CRUD Estudiantes");
-        setSize(800, 500);
+        setSize(850, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         initUI();
     }
 
     private void initUI() {
-        JPanel formulario = new JPanel(new GridLayout(2,4,8,8));
+        JPanel formulario = new JPanel(new GridLayout(2, 4, 8, 8));
         txtNombre = new JTextField();
         txtApellido = new JTextField();
         txtId = new JTextField();
@@ -40,33 +36,64 @@ public class FrmEstudianteCRUD extends JFrame {
 
         btnAgregar = new JButton("Agregar");
         btnListar = new JButton("Listar");
+        btnEliminar = new JButton("Eliminar");
         formulario.add(btnAgregar);
         formulario.add(btnListar);
+        formulario.add(btnEliminar);
 
-        model = new DefaultTableModel(new Object[]{"ID","Nombre","Apellido"}, 0);
+        model = new DefaultTableModel(new Object[]{"ID", "Nombre", "Apellido"}, 0);
         tabla = new JTable(model);
 
-        btnAgregar.addActionListener(e -> {
-            String nombre = txtNombre.getText().trim();
-            String apellido = txtApellido.getText().trim();
-            String id = txtId.getText().trim();
-            if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Complete todos los campos");
-                return;
-            }
-            Estudiante est = new Estudiante(nombre, apellido, id);
-            adminService.agregarEstudiante(est);
-            JOptionPane.showMessageDialog(this, "Estudiante agregado");
-        });
-
-        btnListar.addActionListener(e -> {
-            model.setRowCount(0);
-            for (Estudiante es : adminService.listarEstudiantes()) {
-                model.addRow(new Object[]{es.getIdentificacion(), es.getNombre(), es.getApellido1()});
-            }
-        });
+        btnAgregar.addActionListener(e -> agregar());
+        btnListar.addActionListener(e -> listar());
+        btnEliminar.addActionListener(e -> eliminar());
 
         add(formulario, BorderLayout.NORTH);
         add(new JScrollPane(tabla), BorderLayout.CENTER);
+    }
+
+    private void agregar() {
+        String nombre = txtNombre.getText().trim();
+        String apellido = txtApellido.getText().trim();
+        String id = txtId.getText().trim();
+
+        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete todos los campos");
+            return;
+        }
+
+        Estudiante e = new Estudiante(nombre, apellido, id);
+        adminService.agregarEstudiante(e);
+        JOptionPane.showMessageDialog(this, "Estudiante agregado correctamente");
+        listar();
+        limpiarCampos();
+    }
+
+    private void listar() {
+        model.setRowCount(0);
+        for (Estudiante es : adminService.listarEstudiantes()) {
+            model.addRow(new Object[]{es.getIdentificacion(), es.getNombre(), es.getApellido1()});
+        }
+    }
+
+    private void eliminar() {
+        int fila = tabla.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un estudiante para eliminar");
+            return;
+        }
+        String id = (String) model.getValueAt(fila, 0);
+        if (adminService.eliminarEstudiante(id)) {
+            JOptionPane.showMessageDialog(this, "Estudiante eliminado");
+            listar();
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al eliminar estudiante");
+        }
+    }
+
+    private void limpiarCampos() {
+        txtNombre.setText("");
+        txtApellido.setText("");
+        txtId.setText("");
     }
 }

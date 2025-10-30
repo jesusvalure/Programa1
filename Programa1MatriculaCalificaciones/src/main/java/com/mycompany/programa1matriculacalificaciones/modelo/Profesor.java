@@ -2,8 +2,9 @@ package com.mycompany.programa1matriculacalificaciones.modelo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
-public class Profesor extends Persona {
+public class Profesor extends Persona implements Serializable {
     private List<String> titulos = new ArrayList<>();
     private List<String> certificaciones = new ArrayList<>();
     private List<Grupo> gruposAsignados = new ArrayList<>();

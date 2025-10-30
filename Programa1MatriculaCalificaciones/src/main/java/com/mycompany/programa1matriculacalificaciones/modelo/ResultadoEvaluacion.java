@@ -1,30 +1,26 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.io.Serializable;
 
-public class ResultadoEvaluacion {
+public class ResultadoEvaluacion implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Estudiante estudiante;
-    private LocalDateTime fechaInicio;
-    private LocalDateTime fechaFin;
-    private Map<Integer, Object> respuestas; // preguntaIndex -> respuesta
-    private double puntosObtenidos;
+    private Evaluacion evaluacion;
+    private double nota;
 
-    public ResultadoEvaluacion() {}
-
-    public double calcularCalificacionTotal() {
-        return puntosObtenidos; // placeholder
+    public ResultadoEvaluacion(Estudiante estudiante, Evaluacion evaluacion, double nota) {
+        this.estudiante = estudiante;
+        this.evaluacion = evaluacion;
+        this.nota = nota;
     }
 
     public Estudiante getEstudiante() { return estudiante; }
-    public void setEstudiante(Estudiante estudiante) { this.estudiante = estudiante; }
-    public LocalDateTime getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDateTime fechaInicio) { this.fechaInicio = fechaInicio; }
-    public LocalDateTime getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
-    public Map<Integer, Object> getRespuestas() { return respuestas; }
-    public void setRespuestas(Map<Integer, Object> respuestas) { this.respuestas = respuestas; }
-    public double getPuntosObtenidos() { return puntosObtenidos; }
-    public void setPuntosObtenidos(double puntosObtenidos) { this.puntosObtenidos = puntosObtenidos; }
-    
+    public Evaluacion getEvaluacion() { return evaluacion; }
+    public double getNota() { return nota; }
+
+    @Override
+    public String toString() {
+        return estudiante.getNombre() + " - " + evaluacion.getTitulo() + ": " + nota;
+    }
 }

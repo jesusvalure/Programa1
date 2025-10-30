@@ -1,39 +1,34 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
-import java.time.LocalDate;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Grupo {
-    private int numeroGrupo;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+public class Grupo implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String codigo;
     private Curso curso;
     private Profesor profesor;
     private List<Estudiante> estudiantes = new ArrayList<>();
-    private List<EvaluacionAsignada> evaluacionesAsignadas = new ArrayList<>();
 
-    public Grupo() {}
-
-    public Grupo(int numero, Curso curso) {
-        this.numeroGrupo = numero;
+    public Grupo(String codigo, Curso curso, Profesor profesor) {
+        this.codigo = codigo;
         this.curso = curso;
+        this.profesor = profesor;
     }
 
-    public void agregarEstudiante(Estudiante e) { estudiantes.add(e); }
-    public void asignarProfesor(Profesor p) { this.profesor = p; }
-    public List<Estudiante> getEstudiantes() { return estudiantes; }
-    public List<EvaluacionAsignada> getEvaluacionesAsignadas() { return evaluacionesAsignadas; }
-    public void agregarEvaluacionAsignada(EvaluacionAsignada ea) { evaluacionesAsignadas.add(ea); }
-    public int getNumeroGrupo() { return numeroGrupo; }
-    public void setNumeroGrupo(int numeroGrupo) { this.numeroGrupo = numeroGrupo; }
-    public LocalDate getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
-    public LocalDate getFechaFin() { return fechaFin; }
-    public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
+    public String getCodigo() { return codigo; }
     public Curso getCurso() { return curso; }
-    public void setCurso(Curso curso) { this.curso = curso; }
     public Profesor getProfesor() { return profesor; }
-    public void setProfesor(Profesor profesor) { this.profesor = profesor; }
-    
+    public List<Estudiante> getEstudiantes() { return estudiantes; }
+
+    public void agregarEstudiante(Estudiante e) {
+        if (!estudiantes.contains(e)) estudiantes.add(e);
+    }
+
+    @Override
+    public String toString() {
+        return "Grupo " + codigo + " - " + curso.getNombre() + " (" + profesor.getNombre() + ")";
+    }
 }

@@ -4,19 +4,28 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MenuProfesorFrame extends JFrame {
+
     public MenuProfesorFrame() {
-        setTitle("Profesor - Menú");
-        setSize(600,400);
+        setTitle("Menú Profesor");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         initUI();
     }
 
     private void initUI() {
-        JPanel p = new JPanel(new FlowLayout());
-        p.add(new JButton("Mis evaluaciones"));
-        p.add(new JButton("Asociar evaluación a grupo"));
-        p.add(new JButton("Previsualizar"));
-        add(p);
+        JButton btnEvaluaciones = new JButton("Gestionar Evaluaciones");
+        JButton btnReportes = new JButton("Generar Reporte Evaluaciones");
+        JButton btnResultados = new JButton("Registrar Resultados");
+
+        btnEvaluaciones.addActionListener(e -> new FrmEvaluacionCRUD().setVisible(true));
+        btnReportes.addActionListener(e -> new FrmReporteEvaluacion().setVisible(true));
+        btnResultados.addActionListener(e -> new FrmResultados().setVisible(true));
+
+        JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10));
+        panel.add(btnEvaluaciones);
+        panel.add(btnReportes);
+        panel.add(btnResultados);
+        add(panel, BorderLayout.CENTER);
     }
 }

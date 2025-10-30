@@ -1,18 +1,41 @@
 package com.mycompany.programa1matriculacalificaciones.servicio;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
-import com.mycompany.programa1matriculacalificaciones.modelo.Curso;
+import java.util.ArrayList;
 import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
+/**
+ * Manejo real de estudiantes guardados en archivo.
+ */
+public class AdministradorService implements Serializable {
+    private static final String RUTA_ESTUDIANTES = "datos/matriculaycalificaciones/estudiantes.dat";
+    private ArchivoService<Estudiante> archivo = new ArchivoService<>();
+    private List<Estudiante> estudiantes;
 
-public class AdministradorService {
-    private List<Curso> cursos = new ArrayList<>();
-    private List<Estudiante> estudiantes = new ArrayList<>();
+    public AdministradorService() {
+        estudiantes = archivo.cargarLista(RUTA_ESTUDIANTES);
+    }
 
-    public void agregarCurso(Curso c) { cursos.add(c); }
-    public List<Curso> listarCursos() { return cursos; }
+    public void agregarEstudiante(Estudiante e) {
+        estudiantes.add(e);
+        archivo.guardarLista(estudiantes, RUTA_ESTUDIANTES);
+    }
 
-    public void agregarEstudiante(Estudiante e) { estudiantes.add(e); }
-    public List<Estudiante> listarEstudiantes() { return estudiantes; }
+    public List<Estudiante> listarEstudiantes() {
+        return new ArrayList<>(estudiantes);
+    }
+
+    public boolean eliminarEstudiante(String id) {
+        boolean eliminado = estudiantes.removeIf(e -> e.getIdentificacion().equals(id));
+        if (eliminado) archivo.guardarLista(estudiantes, RUTA_ESTUDIANTES);
+        return eliminado;
+    }
+
+    public Estudiante buscarPorId(String id) {
+        for (Estudiante e : estudiantes) {
+            if (e.getIdentificacion().equals(id)) return e;
+        }
+        return null;
+    }
 }
