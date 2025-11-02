@@ -1,12 +1,15 @@
 package com.mycompany.programa1matriculacalificaciones.app;
 
-import javax.swing.SwingUtilities;
-import com.mycompany.programa1matriculacalificaciones.gui.LoginFrame;
+import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 public class Programa1MatriculaCalificaciones {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new LoginFrame().setVisible(true);
-        });
+        try {
+            UIManager.setLookAndFeel(new NimbusLookAndFeel());
+        } catch (Exception e) {
+            System.out.println("No se pudo aplicar Nimbus: " + e.getMessage());
+        }
+        new com.mycompany.programa1matriculacalificaciones.gui.LoginFrame().setVisible(true);
     }
 }

@@ -15,6 +15,9 @@ public class AdministradorService implements Serializable {
 
     public AdministradorService() {
         estudiantes = archivo.cargarLista(RUTA_ESTUDIANTES);
+        if (estudiantes == null) {
+            estudiantes = new ArrayList<>();
+        }
     }
 
     public void agregarEstudiante(Estudiante e) {
@@ -37,5 +40,15 @@ public class AdministradorService implements Serializable {
             if (e.getIdentificacion().equals(id)) return e;
         }
         return null;
+    }
+    
+    public void actualizarEstudiante(Estudiante estudianteActualizado) {
+        for (int i = 0; i < estudiantes.size(); i++) {
+            if (estudiantes.get(i).getIdentificacion().equals(estudianteActualizado.getIdentificacion())) {
+                estudiantes.set(i, estudianteActualizado);
+                archivo.guardarLista(estudiantes, RUTA_ESTUDIANTES);
+                break;
+            }
+        }
     }
 }

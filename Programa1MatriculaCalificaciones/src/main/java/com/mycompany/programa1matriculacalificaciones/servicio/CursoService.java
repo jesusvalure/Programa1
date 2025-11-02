@@ -11,6 +11,9 @@ public class CursoService {
 
     public CursoService() {
         cursos = archivo.cargarLista(RUTA);
+        if (cursos == null) {
+            cursos = new ArrayList<>();
+        }
     }
 
     public void agregar(Curso c) {
@@ -33,5 +36,15 @@ public class CursoService {
             if (c.getCodigo().equals(codigo)) return c;
         }
         return null;
+    }
+    
+    public void actualizar(Curso cursoActualizado) {
+        for (int i = 0; i < cursos.size(); i++) {
+            if (cursos.get(i).getCodigo().equals(cursoActualizado.getCodigo())) {
+                cursos.set(i, cursoActualizado);
+                archivo.guardarLista(cursos, RUTA);
+                break;
+            }
+        }
     }
 }

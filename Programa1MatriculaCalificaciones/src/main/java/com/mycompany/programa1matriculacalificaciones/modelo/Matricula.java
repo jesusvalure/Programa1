@@ -1,8 +1,10 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Matricula {
+public class Matricula implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Estudiante estudiante;
     private Grupo grupo;
     private LocalDate fechaMatricula;

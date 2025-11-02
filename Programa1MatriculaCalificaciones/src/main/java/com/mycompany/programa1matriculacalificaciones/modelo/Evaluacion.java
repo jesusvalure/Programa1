@@ -1,39 +1,45 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
+import com.mycompany.programa1matriculacalificaciones.modelo.pregunta.Pregunta;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Evaluacion implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     private String id;
     private String titulo;
-    private String tipo; 
+    private String tipo;
     private boolean ordenAleatorio;
-    private List<String> preguntas = new ArrayList<>();
+    private List<Pregunta> preguntas;
 
-    public Evaluacion() {}
+    public Evaluacion(String titulo, String tipo, boolean ordenAleatorio) {
+        this.id = UUID.randomUUID().toString();
+        this.titulo = titulo;
+        this.tipo = tipo;
+        this.ordenAleatorio = ordenAleatorio;
+        this.preguntas = new ArrayList<>();
+    }
 
     public Evaluacion(String id, String titulo, String tipo, boolean ordenAleatorio) {
         this.id = id;
         this.titulo = titulo;
         this.tipo = tipo;
         this.ordenAleatorio = ordenAleatorio;
+        this.preguntas = new ArrayList<>();
     }
 
     public String getId() { return id; }
     public String getTitulo() { return titulo; }
     public String getTipo() { return tipo; }
     public boolean isOrdenAleatorio() { return ordenAleatorio; }
-    public List<String> getPreguntas() { return preguntas; }
+    public List<Pregunta> getPreguntas() { return preguntas; }
 
-    public void agregarPregunta(String pregunta) {
-        preguntas.add(pregunta);
+    public void agregarPregunta(Pregunta p) { preguntas.add(p); }
+    public void eliminarPregunta(String id) {
+        preguntas.removeIf(p -> p.getId().equals(id));
     }
 
     @Override
     public String toString() {
-        return "[" + tipo + "] " + titulo + (ordenAleatorio ? " (aleatoria)" : "");
+        return titulo + " (" + tipo + ") [" + preguntas.size() + " preguntas]";
     }
 }

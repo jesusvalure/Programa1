@@ -1,24 +1,37 @@
 package com.mycompany.programa1matriculacalificaciones.servicio;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.modelo.ResultadoEvaluacion;
+import java.util.*;
 
 public class ResultadoService {
-    private static final String RUTA = "datos/matriculaycalificaciones/resultados.dat";
-    private ArchivoService<ResultadoEvaluacion> archivo = new ArchivoService<>();
+
+    private final ArchivoService<ResultadoEvaluacion> archivoService;
     private List<ResultadoEvaluacion> resultados;
 
     public ResultadoService() {
-        resultados = archivo.cargarLista(RUTA);
+        this.archivoService = new ArchivoService<>("datos/matriculaycalificaciones/resultados.dat");
+        this.resultados = archivoService.cargar();
+        if (this.resultados == null) {
+            this.resultados = new ArrayList<>();
+        }
     }
 
-    public void registrar(ResultadoEvaluacion r) {
+    public void registrarResultado(ResultadoEvaluacion r) {
         resultados.add(r);
-        archivo.guardarLista(resultados, RUTA);
+        archivoService.guardar(resultados);
     }
 
-    public List<ResultadoEvaluacion> listar() {
+    public List<ResultadoEvaluacion> listarResultados() {
         return new ArrayList<>(resultados);
     }
+
+    public List<ResultadoEvaluacion> resultadosPorEstudiante(String nombre) {
+        List<ResultadoEvaluacion> lista = new ArrayList<>();
+        for (ResultadoEvaluacion r : resultados) {
+            if (r.getEstudiante().equalsIgnoreCase(nombre)) lista.add(r);
+        }
+        return lista;
+    }
+
+    
 }

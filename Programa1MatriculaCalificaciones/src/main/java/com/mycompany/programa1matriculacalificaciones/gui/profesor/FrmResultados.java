@@ -39,44 +39,35 @@ public class FrmResultados extends JFrame {
         panel.add(new JLabel("Nota:"));
         panel.add(txtNota);
 
-        JButton btnRegistrar = new JButton("Registrar");
         JButton btnListar = new JButton("Listar");
-        panel.add(btnRegistrar);
+        JButton btnRegresar = new JButton("Regresar");
         panel.add(btnListar);
+        panel.add(btnRegresar);
 
-        model = new DefaultTableModel(new Object[]{"Estudiante", "Evaluación", "Nota"}, 0);
+        model = new DefaultTableModel(new Object[]{"Estudiante", "Evaluación", "Puntaje", "Nota (%)"}, 0);
         tabla = new JTable(model);
 
-        btnRegistrar.addActionListener(e -> registrar());
         btnListar.addActionListener(e -> listar());
+        btnRegresar.addActionListener(e -> {
+            dispose();
+            new MenuProfesorFrame().setVisible(true);
+        });
 
         add(panel, BorderLayout.NORTH);
         add(new JScrollPane(tabla), BorderLayout.CENTER);
-    }
-
-    private void registrar() {
-        try {
-            Estudiante est = (Estudiante) cmbEstudiante.getSelectedItem();
-            Evaluacion ev = (Evaluacion) cmbEvaluacion.getSelectedItem();
-            double nota = Double.parseDouble(txtNota.getText().trim());
-
-            if (est == null || ev == null) {
-                JOptionPane.showMessageDialog(this, "Seleccione evaluación y estudiante");
-                return;
-            }
-
-            resultadoService.registrar(new ResultadoEvaluacion(est, ev, nota));
-            JOptionPane.showMessageDialog(this, "Resultado registrado");
-            listar();
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Nota inválida");
-        }
+        
+        listar();
     }
 
     private void listar() {
         model.setRowCount(0);
-        for (ResultadoEvaluacion r : resultadoService.listar()) {
-            model.addRow(new Object[]{r.getEstudiante().getNombre(), r.getEvaluacion().getTitulo(), r.getNota()});
+        for (ResultadoEvaluacion r : resultadoService.listarResultados()) {
+            model.addRow(new Object[]{
+                r.getEstudiante(),
+                r.getTituloEvaluacion(),
+                String.format("%.1f / %.1f", r.getPuntajeObtenido(), r.getPuntajeTotal()),
+                String.format("%.1f%%", r.getNotaPorcentaje())
+            });
         }
     }
 }

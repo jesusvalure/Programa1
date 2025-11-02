@@ -11,6 +11,9 @@ public class GrupoService {
 
     public GrupoService() {
         grupos = archivo.cargarLista(RUTA);
+        if (grupos == null) {
+            grupos = new ArrayList<>();
+        }
     }
 
     public void agregar(Grupo g) {
@@ -33,6 +36,16 @@ public class GrupoService {
             if (g.getCodigo().equals(codigo)) return g;
         }
         return null;
+    }
+
+    public void actualizar(Grupo grupoActualizado) {
+        for (int i = 0; i < grupos.size(); i++) {
+            if (grupos.get(i).getCodigo().equals(grupoActualizado.getCodigo())) {
+                grupos.set(i, grupoActualizado);
+                archivo.guardarLista(grupos, RUTA);
+                break;
+            }
+        }
     }
 }
 

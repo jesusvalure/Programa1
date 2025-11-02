@@ -1,10 +1,12 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EvaluacionAsignada {
+public class EvaluacionAsignada implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Evaluacion evaluacion;
     private Grupo grupo;
     private LocalDateTime fechaInicio;

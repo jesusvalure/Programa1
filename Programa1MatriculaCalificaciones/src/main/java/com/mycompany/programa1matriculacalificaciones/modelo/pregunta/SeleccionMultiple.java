@@ -1,35 +1,20 @@
 package com.mycompany.programa1matriculacalificaciones.modelo.pregunta;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SeleccionMultiple extends Pregunta {
     private List<String> opciones;
-    private List<Integer> indicesCorrectas;
+    private Set<Integer> indicesCorrectos;
 
-    public SeleccionMultiple() { super(); }
-
-    public SeleccionMultiple(String desc, int puntos, List<String> opts, List<Integer> idxs) {
-        super(desc, puntos);
-        this.opciones = opts;
-        this.indicesCorrectas = idxs;
+    public SeleccionMultiple(String enunciado, double valor, List<String> opciones, Set<Integer> indicesCorrectos) {
+        super(enunciado, valor);
+        this.opciones = new ArrayList<>(opciones);
+        this.indicesCorrectos = new HashSet<>(indicesCorrectos);
     }
 
-    // Getters y setters
     public List<String> getOpciones() { return opciones; }
-    public List<Integer> getIndicesCorrectas() { return indicesCorrectas; }
-    
+    public Set<Integer> getIndicesCorrectos() { return indicesCorrectos; }
 
     @Override
-    public double evaluar(Object respuesta) {
-        if (!(respuesta instanceof List)) return 0;
-        @SuppressWarnings("unchecked")
-        List<Integer> respuestas = (List<Integer>) respuesta;
-        Set<Integer> correctas = new HashSet<>(indicesCorrectas);
-        Set<Integer> dadas = new HashSet<>(respuestas);
-
-        // punto simple: si coinciden exacto, da el total, si no, 0.
-        return correctas.equals(dadas) ? puntos : 0;
-    }
+    public String getTipo() { return "Selección Múltiple"; }
 }

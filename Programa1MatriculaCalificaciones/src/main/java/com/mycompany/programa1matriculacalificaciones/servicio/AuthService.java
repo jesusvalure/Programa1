@@ -1,30 +1,40 @@
 package com.mycompany.programa1matriculacalificaciones.servicio;
 
-import java.util.HashMap;
-import java.util.Map;
 import com.mycompany.programa1matriculacalificaciones.util.Encriptador;
+import com.mycompany.programa1matriculacalificaciones.modelo.Usuario;
 
 public class AuthService {
-    private Map<String,String> usuarios = new HashMap<>();
-    private Map<String,String> roles = new HashMap<>();
+    private UsuarioService usuarioService = new UsuarioService();
 
     public AuthService() {
-        // usuarios de prueba
-        usuarios.put("admin", Encriptador.encriptar("1234"));
-        roles.put("admin", "Administrador");
-
-        usuarios.put("prof1", Encriptador.encriptar("abcd"));
-        roles.put("prof1", "Profesor");
-
-        usuarios.put("est1", Encriptador.encriptar("pass"));
-        roles.put("est1", "Estudiante");
+        // Los usuarios se cargan desde archivo
     }
 
     public String autenticar(String id, String contrasena) {
         if (id == null || contrasena == null) return null;
+        
+        Usuario usuario = usuarioService.buscarPorId(id);
+        if (usuario == null) return null;
+        
         String enc = Encriptador.encriptar(contrasena);
-        if (!usuarios.containsKey(id)) return null;
-        if (usuarios.get(id).equals(enc)) return roles.get(id);
+        if (usuario.getContrasenaEncriptada().equals(enc)) {
+            return usuario.getRol();
+        }
         return null;
+    }
+
+    //login
+    public String login(String id, String contrasena) {
+        return autenticar(id, contrasena);
+    }
+    
+    public void crearUsuario(String id, String contrasena, String rol) {
+        String contrasenaEncriptada = Encriptador.encriptar(contrasena);
+        Usuario usuario = new Usuario(id, contrasenaEncriptada, rol);
+        usuarioService.agregarUsuario(usuario);
+    }
+    
+    public void eliminarUsuario(String id) {
+        usuarioService.eliminarUsuario(id);
     }
 }

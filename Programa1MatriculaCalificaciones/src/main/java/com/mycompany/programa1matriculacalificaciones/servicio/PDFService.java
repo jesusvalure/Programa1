@@ -1,42 +1,67 @@
 package com.mycompany.programa1matriculacalificaciones.servicio;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-import java.io.FileOutputStream;
-import java.util.List;
+import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion;
+
+import java.io.IOException;
+import java.util.List;
 
 public class PDFService {
 
     public void generarReporteEvaluaciones(List<Evaluacion> evaluaciones, String ruta) {
-        Document doc = new Document(PageSize.A4);
-        try {
-            PdfWriter.getInstance(doc, new FileOutputStream(ruta));
-            doc.open();
+        try (PDDocument doc = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
+            doc.addPage(page);
 
-            Paragraph titulo = new Paragraph("Reporte de Evaluaciones\n\n",
-                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18));
-            titulo.setAlignment(Element.ALIGN_CENTER);
-            doc.add(titulo);
+            try (PDPageContentStream content = new PDPageContentStream(doc, page)) {
+                // Título
+                content.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                content.beginText();
+                content.newLineAtOffset(220, 770);
+                content.showText("Reporte de Evaluaciones");
+                content.endText();
 
-            PdfPTable tabla = new PdfPTable(4);
-            tabla.addCell("ID");
-            tabla.addCell("Título");
-            tabla.addCell("Tipo");
-            tabla.addCell("Aleatorio");
+                // Encabezados de tabla
+                content.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                float y = 730;
+                float x = 50;
+                float rowHeight = 20;
 
-            for (Evaluacion e : evaluaciones) {
-                tabla.addCell(e.getId());
-                tabla.addCell(e.getTitulo());
-                tabla.addCell(e.getTipo());
-                tabla.addCell(e.isOrdenAleatorio() ? "Sí" : "No");
+                content.beginText();
+                content.newLineAtOffset(x, y);
+                content.showText(String.format("%-15s %-35s %-20s %-10s", "ID", "Título", "Tipo", "Aleatorio"));
+                content.endText();
+
+                // Contenido
+                content.setFont(PDType1Font.HELVETICA, 11);
+                y -= rowHeight;
+
+                for (Evaluacion e : evaluaciones) {
+                    if (y < 50) {
+                        content.close();
+                        page = new PDPage(PDRectangle.A4);
+                        doc.addPage(page);
+                        y = 770;
+                    }
+
+                    content.beginText();
+                    content.newLineAtOffset(x, y);
+                    content.showText(String.format("%-15s %-35s %-20s %-10s",
+                            e.getId(),
+                            e.getTitulo(),
+                            e.getTipo(),
+                            e.isOrdenAleatorio() ? "Sí" : "No"));
+                    content.endText();
+
+                    y -= rowHeight;
+                }
             }
 
-            doc.add(tabla);
-            doc.close();
-
-            System.out.println("PDF generado en: " + ruta);
-        } catch (Exception ex) {
+            doc.save(ruta);
+            System.out.println("PDF generado exitosamente en: " + ruta);
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }

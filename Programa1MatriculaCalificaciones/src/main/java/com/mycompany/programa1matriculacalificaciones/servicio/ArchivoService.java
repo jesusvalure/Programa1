@@ -1,19 +1,78 @@
 package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-/**
- * Servicio genérico de persistencia para leer y escribir listas de objetos serializables.
- */
-public class ArchivoService<T extends Serializable> {
+public class ArchivoService<T> {
+
+    private final String rutaArchivo;
+
+    public ArchivoService() {
+        this.rutaArchivo = "datos/matriculaycalificaciones/default.dat";
+        File f = new File(rutaArchivo);
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+    }
+
+    public ArchivoService(String rutaArchivo) {
+        this.rutaArchivo = rutaArchivo;
+        File f = new File(rutaArchivo);
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+    }
+
+    public void guardar(List<T> lista) {
+        if (lista == null) {
+            lista = new ArrayList<>();
+        }
+        try {
+            // Asegurar que el directorio existe
+            File f = new File(rutaArchivo);
+            if (!f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
+            }
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(rutaArchivo))) {
+                oos.writeObject(lista);
+                oos.flush();
+            }
+        } catch (IOException e) {
+            System.err.println("Error guardando archivo " + rutaArchivo + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<T> cargar() {
+        File f = new File(rutaArchivo);
+        if (!f.exists()) return new ArrayList<>();
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            return (List<T>) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error cargando archivo: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
 
     public void guardarLista(List<T> lista, String ruta) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
-            oos.writeObject(lista);
+        if (lista == null) {
+            lista = new ArrayList<>();
+        }
+        try {
+            // Asegurar que el directorio existe
+            File f = new File(ruta);
+            if (!f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
+            }
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ruta))) {
+                oos.writeObject(lista);
+                oos.flush();
+            }
         } catch (IOException e) {
-            System.err.println("Error al guardar datos en " + ruta + ": " + e.getMessage());
+            System.err.println("Error guardando archivo " + ruta + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -21,11 +80,13 @@ public class ArchivoService<T extends Serializable> {
     public List<T> cargarLista(String ruta) {
         File f = new File(ruta);
         if (!f.exists()) return new ArrayList<>();
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
             return (List<T>) ois.readObject();
-        } catch (Exception e) {
-            System.err.println("Error al cargar datos desde " + ruta + ": " + e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error cargando archivo: " + e.getMessage());
             return new ArrayList<>();
         }
     }
+
 }

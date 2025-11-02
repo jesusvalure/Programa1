@@ -11,6 +11,9 @@ public class EvaluacionService {
 
     public EvaluacionService() {
         evaluaciones = archivo.cargarLista(RUTA);
+        if (evaluaciones == null) {
+            evaluaciones = new ArrayList<>();
+        }
     }
 
     public void agregar(Evaluacion e) {

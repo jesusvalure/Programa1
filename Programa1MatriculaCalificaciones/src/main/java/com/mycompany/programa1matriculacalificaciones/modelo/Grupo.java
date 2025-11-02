@@ -31,4 +31,5 @@ public class Grupo implements Serializable {
     public String toString() {
         return "Grupo " + codigo + " - " + curso.getNombre() + " (" + profesor.getNombre() + ")";
     }
+
 }
