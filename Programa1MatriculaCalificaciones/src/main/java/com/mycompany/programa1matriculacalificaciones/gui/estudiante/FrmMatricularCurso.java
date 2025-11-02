@@ -21,11 +21,11 @@ public class FrmMatricularCurso extends JFrame {
         this.estudianteId = estudianteId != null ? estudianteId : 
             com.mycompany.programa1matriculacalificaciones.util.SesionActual.getUsuarioId();
         setTitle("Matricular Curso");
-        setSize(900, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(800, 500));
+        setMinimumSize(new Dimension(950, 650));
         initUI();
         cargarMatriculas();
     }

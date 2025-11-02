@@ -16,11 +16,11 @@ public class FrmCursoCRUD extends JFrame {
 
     public FrmCursoCRUD() {
         setTitle("Gestión de Cursos");
-        setSize(900, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(800, 500));
+        setMinimumSize(new Dimension(950, 650));
         initUI();
         listar(); // Cargar lista al iniciar
     }
@@ -38,15 +38,20 @@ public class FrmCursoCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
 
-        txtCodigo = new JTextField(20);
+        txtCodigo = new JTextField(25);
         txtCodigo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNombre = new JTextField(20);
+        txtCodigo.setPreferredSize(new Dimension(200, 30));
+        
+        txtNombre = new JTextField(25);
         txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtCreditos = new JTextField(20);
+        txtNombre.setPreferredSize(new Dimension(200, 30));
+        
+        txtCreditos = new JTextField(25);
         txtCreditos.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCreditos.setPreferredSize(new Dimension(200, 30));
 
         // Fila 1: Código
         gbc.gridx = 0; gbc.gridy = 0;

@@ -9,7 +9,9 @@ import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmEstudianteCRUD extends JFrame {
     private AdministradorService adminService = new AdministradorService();
-    private JTextField txtNombre, txtApellido, txtId;
+    private JTextField txtNombre, txtApellido, txtApellido2, txtId, txtTelefono, txtCorreo, txtDireccion;
+    private JTextField txtFechaNacimiento, txtCarrera, txtNivelEducativo, txtInstitucion;
+    private JComboBox<String> cmbGenero;
     private JButton btnAgregar, btnEditar, btnEliminar, btnLimpiar, btnRegresar;
     private JTable tabla;
     private DefaultTableModel model;
@@ -17,11 +19,11 @@ public class FrmEstudianteCRUD extends JFrame {
 
     public FrmEstudianteCRUD() {
         setTitle("Gestión de Estudiantes");
-        setSize(900, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(800, 500));
+        setMinimumSize(new Dimension(950, 650));
         initUI();
         listar(); // Cargar lista al iniciar
     }
@@ -57,33 +59,137 @@ public class FrmEstudianteCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
 
-        txtNombre = new JTextField(20);
+        txtNombre = new JTextField(25);
         txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtApellido = new JTextField(20);
+        txtNombre.setPreferredSize(new Dimension(200, 30));
+        
+        txtApellido = new JTextField(25);
         txtApellido.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtId = new JTextField(20);
+        txtApellido.setPreferredSize(new Dimension(200, 30));
+        
+        txtApellido2 = new JTextField(25);
+        txtApellido2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtApellido2.setPreferredSize(new Dimension(200, 30));
+        
+        txtId = new JTextField(25);
         txtId.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtId.setPreferredSize(new Dimension(200, 30));
+        
+        txtTelefono = new JTextField(25);
+        txtTelefono.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtTelefono.setPreferredSize(new Dimension(200, 30));
+        
+        txtCorreo = new JTextField(25);
+        txtCorreo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCorreo.setPreferredSize(new Dimension(200, 30));
+        
+        txtDireccion = new JTextField(25);
+        txtDireccion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtDireccion.setPreferredSize(new Dimension(200, 30));
+        
+        txtFechaNacimiento = new JTextField(25);
+        txtFechaNacimiento.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtFechaNacimiento.setPreferredSize(new Dimension(200, 30));
+        
+        txtCarrera = new JTextField(25);
+        txtCarrera.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCarrera.setPreferredSize(new Dimension(200, 30));
+        
+        txtNivelEducativo = new JTextField(25);
+        txtNivelEducativo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtNivelEducativo.setPreferredSize(new Dimension(200, 30));
+        
+        txtInstitucion = new JTextField(25);
+        txtInstitucion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtInstitucion.setPreferredSize(new Dimension(200, 30));
+        
+        cmbGenero = new JComboBox<>(new String[]{"Masculino", "Femenino", "Otro"});
+        cmbGenero.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cmbGenero.setPreferredSize(new Dimension(200, 30));
+        ((JLabel)cmbGenero.getRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
 
+        // Columna izquierda
         // Fila 1: Nombre
         gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Nombre:"), gbc);
+        formPanel.add(new JLabel("Nombre:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtNombre, gbc);
 
-        // Fila 2: Apellido
+        // Fila 2: Primer Apellido
         gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Apellido:"), gbc);
+        formPanel.add(new JLabel("Primer Apellido:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtApellido, gbc);
-
-        // Fila 3: Identificación
+        
+        // Fila 3: Segundo Apellido
         gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Identificación:"), gbc);
+        formPanel.add(new JLabel("Segundo Apellido:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtApellido2, gbc);
+
+        // Fila 4: Identificación
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("Identificación:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtId, gbc);
+        
+        // Fila 5: Teléfono
+        gbc.gridx = 0; gbc.gridy = 4;
+        formPanel.add(new JLabel("Teléfono:*"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtTelefono, gbc);
+        
+        // Fila 6: Correo
+        gbc.gridx = 0; gbc.gridy = 5;
+        formPanel.add(new JLabel("Correo:*"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtCorreo, gbc);
+        
+        // Columna derecha
+        // Fila 1: Dirección
+        gbc.gridx = 2; gbc.gridy = 0;
+        formPanel.add(new JLabel("Dirección:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtDireccion, gbc);
+        
+        // Fila 2: Fecha de Nacimiento
+        gbc.gridx = 2; gbc.gridy = 1;
+        formPanel.add(new JLabel("Fecha Nacimiento:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtFechaNacimiento, gbc);
+        
+        // Fila 3: Género
+        gbc.gridx = 2; gbc.gridy = 2;
+        formPanel.add(new JLabel("Género:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(cmbGenero, gbc);
+        
+        // Fila 4: Carrera
+        gbc.gridx = 2; gbc.gridy = 3;
+        formPanel.add(new JLabel("Carrera:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtCarrera, gbc);
+        
+        // Fila 5: Nivel Educativo
+        gbc.gridx = 2; gbc.gridy = 4;
+        formPanel.add(new JLabel("Nivel Educativo:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtNivelEducativo, gbc);
+        
+        // Fila 6: Institución de Procedencia
+        gbc.gridx = 2; gbc.gridy = 5;
+        formPanel.add(new JLabel("Institución Procedencia:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtInstitucion, gbc);
+        
+        // Nota campos obligatorios
+        gbc.gridx = 0; gbc.gridy = 6;
+        gbc.gridwidth = 4;
+        formPanel.add(new JLabel("* Campos obligatorios"), gbc);
+        gbc.gridwidth = 1;
 
         // Panel de botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -156,10 +262,21 @@ public class FrmEstudianteCRUD extends JFrame {
     private void agregar() {
         String nombre = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
+        String apellido2 = txtApellido2.getText().trim();
         String id = txtId.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        String fechaNacimiento = txtFechaNacimiento.getText().trim();
+        String genero = (String) cmbGenero.getSelectedItem();
+        String carrera = txtCarrera.getText().trim();
+        String nivelEducativo = txtNivelEducativo.getText().trim();
+        String institucionProcedencia = txtInstitucion.getText().trim();
 
-        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty() || telefono.isEmpty() || 
+            correo.isEmpty() || fechaNacimiento.isEmpty() || carrera.isEmpty() || 
+            nivelEducativo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete los campos obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -169,7 +286,8 @@ public class FrmEstudianteCRUD extends JFrame {
         }
 
         // Crear estudiante
-        Estudiante e = new Estudiante(nombre, apellido, id);
+        Estudiante e = new Estudiante(nombre, apellido, apellido2, id, telefono, correo, direccion, 
+                                     fechaNacimiento, genero, carrera, nivelEducativo, institucionProcedencia);
         adminService.agregarEstudiante(e);
         
         // Crear usuario para el estudiante
@@ -208,7 +326,16 @@ public class FrmEstudianteCRUD extends JFrame {
         if (estudianteSeleccionado != null) {
             txtNombre.setText(estudianteSeleccionado.getNombre());
             txtApellido.setText(estudianteSeleccionado.getApellido1());
+            txtApellido2.setText(estudianteSeleccionado.getApellido2() != null ? estudianteSeleccionado.getApellido2() : "");
             txtId.setText(estudianteSeleccionado.getIdentificacion());
+            txtTelefono.setText(estudianteSeleccionado.getTelefono() != null ? estudianteSeleccionado.getTelefono() : "");
+            txtCorreo.setText(estudianteSeleccionado.getCorreo() != null ? estudianteSeleccionado.getCorreo() : "");
+            txtDireccion.setText(estudianteSeleccionado.getDireccion() != null ? estudianteSeleccionado.getDireccion() : "");
+            txtFechaNacimiento.setText(estudianteSeleccionado.getFechaNacimiento() != null ? estudianteSeleccionado.getFechaNacimiento() : "");
+            cmbGenero.setSelectedItem(estudianteSeleccionado.getGenero() != null ? estudianteSeleccionado.getGenero() : "Masculino");
+            txtCarrera.setText(estudianteSeleccionado.getCarrera() != null ? estudianteSeleccionado.getCarrera() : "");
+            txtNivelEducativo.setText(estudianteSeleccionado.getNivelEducativo() != null ? estudianteSeleccionado.getNivelEducativo() : "");
+            txtInstitucion.setText(estudianteSeleccionado.getInstitucionProcedencia() != null ? estudianteSeleccionado.getInstitucionProcedencia() : "");
         }
     }
     
@@ -282,7 +409,16 @@ public class FrmEstudianteCRUD extends JFrame {
     private void limpiarCampos() {
         txtNombre.setText("");
         txtApellido.setText("");
+        txtApellido2.setText("");
         txtId.setText("");
+        txtTelefono.setText("");
+        txtCorreo.setText("");
+        txtDireccion.setText("");
+        txtFechaNacimiento.setText("");
+        cmbGenero.setSelectedIndex(0);
+        txtCarrera.setText("");
+        txtNivelEducativo.setText("");
+        txtInstitucion.setText("");
         estudianteSeleccionado = null;
     }
 }

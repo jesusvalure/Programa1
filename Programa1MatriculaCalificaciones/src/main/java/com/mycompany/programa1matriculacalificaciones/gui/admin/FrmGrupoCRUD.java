@@ -21,11 +21,11 @@ public class FrmGrupoCRUD extends JFrame {
 
     public FrmGrupoCRUD() {
         setTitle("Gestión de Grupos");
-        setSize(900, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(800, 500));
+        setMinimumSize(new Dimension(950, 650));
         initUI();
         listar(); // Cargar lista al iniciar
     }
@@ -43,11 +43,12 @@ public class FrmGrupoCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
 
-        txtCodigo = new JTextField(20);
+        txtCodigo = new JTextField(25);
         txtCodigo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCodigo.setPreferredSize(new Dimension(200, 30));
         
         // Inicializar combos
         cmbCurso = new JComboBox<>(cursoService.listar().toArray(new Curso[0]));
@@ -312,13 +313,21 @@ public class FrmGrupoCRUD extends JFrame {
             String nombreProfesor = "N/A";
             if (g.getProfesor() != null) {
                 String nombre = g.getProfesor().getNombre();
-                String apellido = g.getProfesor().getApellido1();
-                if (nombre != null && apellido != null) {
-                    nombreProfesor = nombre + " " + apellido;
-                } else if (nombre != null) {
-                    nombreProfesor = nombre;
-                } else if (apellido != null) {
-                    nombreProfesor = apellido;
+                String apellido1 = g.getProfesor().getApellido1();
+                String apellido2 = g.getProfesor().getApellido2();
+                String especialidad = g.getProfesor().getEspecialidad();
+                
+                StringBuilder sb = new StringBuilder();
+                if (nombre != null) sb.append(nombre).append(" ");
+                if (apellido1 != null) sb.append(apellido1);
+                if (apellido2 != null && !apellido2.isEmpty()) sb.append(" ").append(apellido2);
+                
+                nombreProfesor = sb.toString().trim();
+                if (nombreProfesor.isEmpty()) nombreProfesor = "N/A";
+                
+                // Agregar especialidad si está disponible
+                if (especialidad != null && !especialidad.isEmpty()) {
+                    nombreProfesor += " (" + especialidad + ")";
                 }
             }
             model.addRow(new Object[]{g.getCodigo(), g.getCurso().getNombre(), nombreProfesor});

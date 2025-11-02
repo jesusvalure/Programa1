@@ -20,10 +20,11 @@ public class FrmEvaluacionCRUD extends JFrame {
 
     public FrmEvaluacionCRUD() {
         setTitle("Gestión de Evaluaciones");
-        setSize(700, 500);
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(true);
+        setMinimumSize(new Dimension(850, 550));
         initUI();
         cargarEvaluaciones();
     }

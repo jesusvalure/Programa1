@@ -9,20 +9,23 @@ import com.mycompany.programa1matriculacalificaciones.modelo.Profesor;
 
 public class FrmProfesorCRUD extends JFrame {
     private ProfesorCRUDService profesorService = new ProfesorCRUDService();
-    private JTextField txtNombre, txtApellido, txtId;
+    private JTextField txtNombre, txtApellido, txtApellido2, txtId, txtTelefono, txtCorreo, txtDireccion;
+    private JTextField txtFechaNacimiento, txtEspecialidad, txtGradoAcademico;
+    private JSpinner spnAniosExperiencia;
+    private JComboBox<String> cmbGenero;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
     private JButton btnAgregar, btnEditar, btnEliminar, btnRegresar;
 
     public FrmProfesorCRUD() {
         setTitle("Gestión de Profesores");
-        setSize(900, 600);
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(800, 500));
+        setMinimumSize(new Dimension(950, 650));
         initUI();
-        cargarProfesores();
+        cargarProfesores(); // Cargar lista al iniciar
     }
 
     private void initUI() {
@@ -38,33 +41,139 @@ public class FrmProfesorCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
 
-        txtNombre = new JTextField(20);
+        txtNombre = new JTextField(25);
         txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtApellido = new JTextField(20);
+        txtNombre.setPreferredSize(new Dimension(200, 30));
+        
+        txtApellido = new JTextField(25);
         txtApellido.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtId = new JTextField(20);
+        txtApellido.setPreferredSize(new Dimension(200, 30));
+        
+        txtApellido2 = new JTextField(25);
+        txtApellido2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtApellido2.setPreferredSize(new Dimension(200, 30));
+        
+        txtId = new JTextField(25);
         txtId.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtId.setPreferredSize(new Dimension(200, 30));
+        
+        txtTelefono = new JTextField(25);
+        txtTelefono.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtTelefono.setPreferredSize(new Dimension(200, 30));
+        
+        txtCorreo = new JTextField(25);
+        txtCorreo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCorreo.setPreferredSize(new Dimension(200, 30));
+        
+        txtDireccion = new JTextField(25);
+        txtDireccion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtDireccion.setPreferredSize(new Dimension(200, 30));
+        
+        txtFechaNacimiento = new JTextField(25);
+        txtFechaNacimiento.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtFechaNacimiento.setPreferredSize(new Dimension(200, 30));
+        
+        txtEspecialidad = new JTextField(25);
+        txtEspecialidad.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtEspecialidad.setPreferredSize(new Dimension(200, 30));
+        
+        txtGradoAcademico = new JTextField(25);
+        txtGradoAcademico.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtGradoAcademico.setPreferredSize(new Dimension(200, 30));
+        
+        spnAniosExperiencia = new JSpinner(new SpinnerNumberModel(0, 0, 50, 1));
+        spnAniosExperiencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        spnAniosExperiencia.setPreferredSize(new Dimension(200, 30));
+        JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spnAniosExperiencia.getEditor();
+        editor.getTextField().setHorizontalAlignment(JTextField.LEFT);
+        
+        cmbGenero = new JComboBox<>(new String[]{"Masculino", "Femenino", "Otro"});
+        cmbGenero.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cmbGenero.setPreferredSize(new Dimension(200, 30));
+        ((JLabel)cmbGenero.getRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
 
+        // Columna izquierda
         // Fila 1: Nombre
         gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("Nombre:"), gbc);
+        formPanel.add(new JLabel("Nombre:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtNombre, gbc);
 
-        // Fila 2: Apellido
+        // Fila 2: Primer Apellido
         gbc.gridx = 0; gbc.gridy = 1;
-        formPanel.add(new JLabel("Apellido:"), gbc);
+        formPanel.add(new JLabel("Primer Apellido:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtApellido, gbc);
-
-        // Fila 3: Identificación
+        
+        // Fila 3: Segundo Apellido
         gbc.gridx = 0; gbc.gridy = 2;
-        formPanel.add(new JLabel("Identificación:"), gbc);
+        formPanel.add(new JLabel("Segundo Apellido:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtApellido2, gbc);
+
+        // Fila 4: Identificación
+        gbc.gridx = 0; gbc.gridy = 3;
+        formPanel.add(new JLabel("Identificación:*"), gbc);
         gbc.gridx = 1;
         formPanel.add(txtId, gbc);
+        
+        // Fila 5: Teléfono
+        gbc.gridx = 0; gbc.gridy = 4;
+        formPanel.add(new JLabel("Teléfono:*"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtTelefono, gbc);
+        
+        // Fila 6: Correo
+        gbc.gridx = 0; gbc.gridy = 5;
+        formPanel.add(new JLabel("Correo:*"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtCorreo, gbc);
+        
+        // Columna derecha
+        // Fila 1: Dirección
+        gbc.gridx = 2; gbc.gridy = 0;
+        formPanel.add(new JLabel("Dirección:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtDireccion, gbc);
+        
+        // Fila 2: Fecha de Nacimiento
+        gbc.gridx = 2; gbc.gridy = 1;
+        formPanel.add(new JLabel("Fecha Nacimiento:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtFechaNacimiento, gbc);
+        
+        // Fila 3: Género
+        gbc.gridx = 2; gbc.gridy = 2;
+        formPanel.add(new JLabel("Género:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(cmbGenero, gbc);
+        
+        // Fila 4: Especialidad
+        gbc.gridx = 2; gbc.gridy = 3;
+        formPanel.add(new JLabel("Especialidad:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtEspecialidad, gbc);
+        
+        // Fila 5: Grado Académico
+        gbc.gridx = 2; gbc.gridy = 4;
+        formPanel.add(new JLabel("Grado Académico:*"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(txtGradoAcademico, gbc);
+        
+        // Fila 6: Años de Experiencia
+        gbc.gridx = 2; gbc.gridy = 5;
+        formPanel.add(new JLabel("Años de Experiencia:"), gbc);
+        gbc.gridx = 3;
+        formPanel.add(spnAniosExperiencia, gbc);
+        
+        // Nota campos obligatorios
+        gbc.gridx = 0; gbc.gridy = 6;
+        gbc.gridwidth = 4;
+        formPanel.add(new JLabel("* Campos obligatorios"), gbc);
+        gbc.gridwidth = 1;
 
         // Panel de botones
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -87,13 +196,15 @@ public class FrmProfesorCRUD extends JFrame {
         panelBotones.add(btnEliminar);
         panelBotones.add(btnRegresar);
 
-        gbc.gridx = 0; gbc.gridy = 3;
-        gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 7;
+        gbc.gridwidth = 4;
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(panelBotones, gbc);
 
-        // Tabla
-        modeloTabla = new DefaultTableModel(new Object[]{"ID", "Nombre", "Apellido"}, 0) {
+        // Tabla con mejor diseño
+        modeloTabla = new DefaultTableModel(new Object[]{
+            "ID", "Nombre", "Apellido", "Teléfono", "Correo", "Especialidad", "Grado Académico"
+        }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -144,7 +255,11 @@ public class FrmProfesorCRUD extends JFrame {
             modeloTabla.addRow(new Object[]{
                 p.getIdentificacion(),
                 p.getNombre(),
-                p.getApellido1()
+                p.getApellido1(),
+                p.getTelefono(),
+                p.getCorreo(),
+                p.getEspecialidad(),
+                p.getGradoAcademico()
             });
         }
     }
@@ -158,17 +273,37 @@ public class FrmProfesorCRUD extends JFrame {
         if (prof != null) {
             txtNombre.setText(prof.getNombre());
             txtApellido.setText(prof.getApellido1());
+            txtApellido2.setText(prof.getApellido2() != null ? prof.getApellido2() : "");
             txtId.setText(prof.getIdentificacion());
+            txtTelefono.setText(prof.getTelefono() != null ? prof.getTelefono() : "");
+            txtCorreo.setText(prof.getCorreo() != null ? prof.getCorreo() : "");
+            txtDireccion.setText(prof.getDireccion() != null ? prof.getDireccion() : "");
+            txtFechaNacimiento.setText(prof.getFechaNacimiento() != null ? prof.getFechaNacimiento() : "");
+            cmbGenero.setSelectedItem(prof.getGenero() != null ? prof.getGenero() : "Masculino");
+            txtEspecialidad.setText(prof.getEspecialidad() != null ? prof.getEspecialidad() : "");
+            txtGradoAcademico.setText(prof.getGradoAcademico() != null ? prof.getGradoAcademico() : "");
+            spnAniosExperiencia.setValue(prof.getAniosExperiencia());
         }
     }
 
     private void agregarProfesor() {
         String nombre = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
+        String apellido2 = txtApellido2.getText().trim();
         String id = txtId.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        String fechaNacimiento = txtFechaNacimiento.getText().trim();
+        String genero = (String) cmbGenero.getSelectedItem();
+        String especialidad = txtEspecialidad.getText().trim();
+        String gradoAcademico = txtGradoAcademico.getText().trim();
+        int aniosExperiencia = (Integer) spnAniosExperiencia.getValue();
 
-        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty() || telefono.isEmpty() || 
+            correo.isEmpty() || fechaNacimiento.isEmpty() || especialidad.isEmpty() || 
+            gradoAcademico.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete los campos obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -178,7 +313,8 @@ public class FrmProfesorCRUD extends JFrame {
         }
 
         // Crear profesor
-        Profesor profesor = new Profesor(nombre, apellido, id);
+        Profesor profesor = new Profesor(nombre, apellido, apellido2, id, telefono, correo, direccion, 
+                                        fechaNacimiento, genero, especialidad, gradoAcademico, aniosExperiencia);
         profesorService.agregar(profesor);
         
         // Crear usuario para el profesor
@@ -216,16 +352,28 @@ public class FrmProfesorCRUD extends JFrame {
         String idOriginal = (String) modeloTabla.getValueAt(fila, 0);
         String nombre = txtNombre.getText().trim();
         String apellido = txtApellido.getText().trim();
+        String apellido2 = txtApellido2.getText().trim();
         String id = txtId.getText().trim();
+        String telefono = txtTelefono.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        String direccion = txtDireccion.getText().trim();
+        String fechaNacimiento = txtFechaNacimiento.getText().trim();
+        String genero = (String) cmbGenero.getSelectedItem();
+        String especialidad = txtEspecialidad.getText().trim();
+        String gradoAcademico = txtGradoAcademico.getText().trim();
+        int aniosExperiencia = (Integer) spnAniosExperiencia.getValue();
 
-        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
+        if (nombre.isEmpty() || apellido.isEmpty() || id.isEmpty() || telefono.isEmpty() || 
+            correo.isEmpty() || fechaNacimiento.isEmpty() || especialidad.isEmpty() || 
+            gradoAcademico.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Complete los campos obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         Profesor prof = profesorService.buscar(idOriginal);
         if (prof != null) {
-            Profesor actualizado = new Profesor(nombre, apellido, id);
+            Profesor actualizado = new Profesor(nombre, apellido, apellido2, id, telefono, correo, direccion, 
+                                        fechaNacimiento, genero, especialidad, gradoAcademico, aniosExperiencia);
             if (!id.equals(idOriginal) && profesorService.buscar(id) != null) {
                 JOptionPane.showMessageDialog(this, "Ya existe un profesor con esta identificación", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -265,6 +413,15 @@ public class FrmProfesorCRUD extends JFrame {
     private void limpiarCampos() {
         txtNombre.setText("");
         txtApellido.setText("");
+        txtApellido2.setText("");
         txtId.setText("");
+        txtTelefono.setText("");
+        txtCorreo.setText("");
+        txtDireccion.setText("");
+        txtFechaNacimiento.setText("");
+        txtEspecialidad.setText("");
+        txtGradoAcademico.setText("");
+        spnAniosExperiencia.setValue(0);
+        cmbGenero.setSelectedIndex(0);
     }
 }
