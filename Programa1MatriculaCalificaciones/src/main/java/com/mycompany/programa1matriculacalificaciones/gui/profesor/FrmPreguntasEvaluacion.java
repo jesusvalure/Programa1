@@ -67,7 +67,6 @@ public class FrmPreguntasEvaluacion extends JFrame {
         btnEliminar.addActionListener(e -> eliminarPregunta());
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuProfesorFrame().setVisible(true);
         });
 
         botones.add(btnAgregar);

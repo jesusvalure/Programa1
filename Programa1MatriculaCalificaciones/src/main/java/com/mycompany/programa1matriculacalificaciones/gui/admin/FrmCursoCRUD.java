@@ -1,6 +1,7 @@
 package com.mycompany.programa1matriculacalificaciones.gui.admin;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.CursoService;
@@ -14,64 +15,131 @@ public class FrmCursoCRUD extends JFrame {
     private Curso cursoSeleccionado;
 
     public FrmCursoCRUD() {
-        setTitle("CRUD Cursos");
-        setSize(800, 500);
+        setTitle("Gestión de Cursos");
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(true);
+        setMinimumSize(new Dimension(800, 500));
         initUI();
+        listar(); // Cargar lista al iniciar
     }
 
     private void initUI() {
-        JPanel panel = new JPanel(new GridLayout(2, 4, 10, 10));
-        txtCodigo = new JTextField();
-        txtNombre = new JTextField();
-        txtCreditos = new JTextField();
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(new Color(245, 245, 245));
+        panel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        panel.add(new JLabel("Código:"));
-        panel.add(txtCodigo);
-        panel.add(new JLabel("Nombre:"));
-        panel.add(txtNombre);
-        panel.add(new JLabel("Créditos:"));
-        panel.add(txtCreditos);
+        JLabel lblTitulo = new JLabel("Gestión de Cursos", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitulo.setForeground(new Color(155, 89, 182));
 
-        JButton btnAgregar = new JButton("Agregar");
-        JButton btnEditar = new JButton("Editar");
-        JButton btnEliminar = new JButton("Eliminar");
-        JButton btnLimpiar = new JButton("Limpiar");
+        // Panel de formulario con mejor layout
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(panel.getBackground());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        panel.add(btnAgregar);
-        panel.add(btnEditar);
-        panel.add(btnEliminar);
-        panel.add(btnLimpiar);
+        txtCodigo = new JTextField(20);
+        txtCodigo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtNombre = new JTextField(20);
+        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtCreditos = new JTextField(20);
+        txtCreditos.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        model = new DefaultTableModel(new Object[]{"Código", "Nombre", "Créditos"}, 0);
-        tabla = new JTable(model);
+        // Fila 1: Código
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Código:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtCodigo, gbc);
+
+        // Fila 2: Nombre
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("Nombre:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtNombre, gbc);
+
+        // Fila 3: Créditos
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("Créditos:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtCreditos, gbc);
+
+        // Panel de botones
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelBotones.setBackground(panel.getBackground());
+
+        JButton btnAgregar = crearBoton("Agregar", new Color(46, 204, 113));
+        JButton btnEditar = crearBoton("Editar", new Color(52, 152, 219));
+        JButton btnEliminar = crearBoton("Eliminar", new Color(231, 76, 60));
+        JButton btnLimpiar = crearBoton("Limpiar", new Color(149, 165, 166));
+        JButton btnRegresar = crearBoton("Regresar", new Color(127, 140, 141));
 
         btnAgregar.addActionListener(e -> agregar());
         btnEditar.addActionListener(e -> editar());
         btnEliminar.addActionListener(e -> eliminar());
         btnLimpiar.addActionListener(e -> limpiarCampos());
-        
+        btnRegresar.addActionListener(e -> {
+            dispose();
+        });
+
+        panelBotones.add(btnAgregar);
+        panelBotones.add(btnEditar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnLimpiar);
+        panelBotones.add(btnRegresar);
+
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        formPanel.add(panelBotones, gbc);
+
+        // Tabla
+        model = new DefaultTableModel(new Object[]{"Código", "Nombre", "Créditos"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tabla = new JTable(model);
+        tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tabla.setRowHeight(25);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.setPreferredScrollableViewportSize(new Dimension(0, 200));
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarCursoSeleccionado();
             }
         });
 
-        JButton btnRegresar = new JButton("Regresar");
-        btnRegresar.addActionListener(e -> {
-            dispose();
-            new MenuAdministradorFrame().setVisible(true);
-        });
+        JScrollPane scroll = new JScrollPane(tabla);
+        scroll.setBorder(BorderFactory.createTitledBorder("Cursos Registrados"));
+        scroll.setPreferredSize(new Dimension(0, 250));
 
-        JPanel panelBotones = new JPanel();
-        panelBotones.add(btnRegresar);
+        // Panel norte con formulario
+        JPanel panelNorte = new JPanel(new BorderLayout());
+        panelNorte.setBackground(panel.getBackground());
+        panelNorte.add(formPanel, BorderLayout.CENTER);
 
-        add(panel, BorderLayout.NORTH);
-        add(new JScrollPane(tabla), BorderLayout.CENTER);
-        add(panelBotones, BorderLayout.SOUTH);
-        
-        listar(); // Cargar lista al iniciar
+        panel.add(lblTitulo, BorderLayout.NORTH);
+        panel.add(panelNorte, BorderLayout.CENTER);
+        panel.add(scroll, BorderLayout.SOUTH);
+
+        add(panel);
+    }
+
+    private JButton crearBoton(String texto, Color color) {
+        JButton btn = new JButton(texto);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(120, 35));
+        return btn;
     }
 
     private void agregar() {

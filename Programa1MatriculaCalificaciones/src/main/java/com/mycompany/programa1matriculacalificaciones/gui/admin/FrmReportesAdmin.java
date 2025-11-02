@@ -3,6 +3,7 @@ package com.mycompany.programa1matriculacalificaciones.gui.admin;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.servicio.*;
 import com.mycompany.programa1matriculacalificaciones.modelo.*;
 
@@ -48,7 +49,6 @@ public class FrmReportesAdmin extends JFrame {
         btnReporteResultados.addActionListener(e -> mostrarReporteResultados());
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuAdministradorFrame().setVisible(true);
         });
 
         botonesPanel.add(btnReporteEstudiantes);
@@ -79,10 +79,25 @@ public class FrmReportesAdmin extends JFrame {
     private void mostrarReporteEstudiantes() {
         StringBuilder reporte = new StringBuilder("REPORTE DE ESTUDIANTES\n");
         reporte.append("================================\n\n");
-        for (Estudiante e : adminService.listarEstudiantes()) {
-            reporte.append(String.format("ID: %s\nNombre: %s %s\n\n", 
-                e.getIdentificacion(), e.getNombre(), e.getApellido1()));
+        
+        List<Estudiante> estudiantes = adminService.listarEstudiantes();
+        if (estudiantes == null || estudiantes.isEmpty()) {
+            reporte.append("No hay estudiantes registrados.\n");
+        } else {
+            for (Estudiante e : estudiantes) {
+                if (e != null) {
+                    String id = e.getIdentificacion() != null ? e.getIdentificacion() : "N/A";
+                    String nombre = e.getNombre() != null ? e.getNombre() : "N/A";
+                    String apellido = e.getApellido1() != null ? e.getApellido1() : "N/A";
+                    reporte.append(String.format("ID: %s\nNombre: %s %s\n\n", id, nombre, apellido));
+                }
+            }
         }
+        
+        if (reporte.toString().equals("REPORTE DE ESTUDIANTES\n================================\n\n")) {
+            reporte.append("No hay estudiantes para mostrar.\n");
+        }
+        
         mostrarReporte("Estudiantes", reporte.toString());
     }
 

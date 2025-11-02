@@ -44,7 +44,6 @@ public class FrmDesempenoPersonal extends JFrame {
         JButton btnRegresar = crearBoton("Regresar", new Color(127, 140, 141));
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuEstudianteFrame().setVisible(true);
         });
 
         JPanel botones = new JPanel(new FlowLayout());

@@ -86,7 +86,6 @@ public class FrmEvaluacionCRUD extends JFrame {
         btnEliminar.addActionListener(e -> eliminarEvaluacion());
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuProfesorFrame().setVisible(true);
         });
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {

@@ -16,10 +16,11 @@ public class FrmProfesorCRUD extends JFrame {
 
     public FrmProfesorCRUD() {
         setTitle("Gestión de Profesores");
-        setSize(850, 500);
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
+        setResizable(true);
+        setMinimumSize(new Dimension(800, 500));
         initUI();
         cargarProfesores();
     }
@@ -33,20 +34,41 @@ public class FrmProfesorCRUD extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(52, 152, 219));
 
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(2, 4, 10, 10));
+        // Panel de formulario con mejor layout
+        JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
 
-        txtNombre = crearCampoTexto("Nombre");
-        txtApellido = crearCampoTexto("Apellido");
-        txtId = crearCampoTexto("Identificación");
+        txtNombre = new JTextField(20);
+        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtApellido = new JTextField(20);
+        txtApellido.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtId = new JTextField(20);
+        txtId.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        formPanel.add(new JLabel("Nombre:"));
-        formPanel.add(txtNombre);
-        formPanel.add(new JLabel("Apellido:"));
-        formPanel.add(txtApellido);
-        formPanel.add(new JLabel("Identificación:"));
-        formPanel.add(txtId);
+        // Fila 1: Nombre
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Nombre:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtNombre, gbc);
+
+        // Fila 2: Apellido
+        gbc.gridx = 0; gbc.gridy = 1;
+        formPanel.add(new JLabel("Apellido:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtApellido, gbc);
+
+        // Fila 3: Identificación
+        gbc.gridx = 0; gbc.gridy = 2;
+        formPanel.add(new JLabel("Identificación:"), gbc);
+        gbc.gridx = 1;
+        formPanel.add(txtId, gbc);
+
+        // Panel de botones
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        panelBotones.setBackground(panel.getBackground());
 
         btnAgregar = crearBoton("Agregar", new Color(46, 204, 113));
         btnEditar = crearBoton("Editar", new Color(52, 152, 219));
@@ -58,14 +80,19 @@ public class FrmProfesorCRUD extends JFrame {
         btnEliminar.addActionListener(e -> eliminarProfesor());
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuAdministradorFrame().setVisible(true);
         });
 
-        formPanel.add(btnAgregar);
-        formPanel.add(btnEditar);
-        formPanel.add(btnEliminar);
-        formPanel.add(btnRegresar);
+        panelBotones.add(btnAgregar);
+        panelBotones.add(btnEditar);
+        panelBotones.add(btnEliminar);
+        panelBotones.add(btnRegresar);
 
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        formPanel.add(panelBotones, gbc);
+
+        // Tabla
         modeloTabla = new DefaultTableModel(new Object[]{"ID", "Nombre", "Apellido"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -76,6 +103,7 @@ public class FrmProfesorCRUD extends JFrame {
         tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tabla.setRowHeight(25);
         tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.setPreferredScrollableViewportSize(new Dimension(0, 200));
         tabla.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarProfesorSeleccionado();
@@ -84,19 +112,18 @@ public class FrmProfesorCRUD extends JFrame {
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createTitledBorder("Profesores Registrados"));
+        scroll.setPreferredSize(new Dimension(0, 250));
+
+        // Panel norte con formulario
+        JPanel panelNorte = new JPanel(new BorderLayout());
+        panelNorte.setBackground(panel.getBackground());
+        panelNorte.add(formPanel, BorderLayout.CENTER);
 
         panel.add(lblTitulo, BorderLayout.NORTH);
-        panel.add(formPanel, BorderLayout.CENTER);
+        panel.add(panelNorte, BorderLayout.CENTER);
         panel.add(scroll, BorderLayout.SOUTH);
 
         add(panel);
-    }
-
-    private JTextField crearCampoTexto(String titulo) {
-        JTextField campo = new JTextField();
-        campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        campo.setBorder(BorderFactory.createTitledBorder(titulo));
-        return campo;
     }
 
     private JButton crearBoton(String texto, Color color) {

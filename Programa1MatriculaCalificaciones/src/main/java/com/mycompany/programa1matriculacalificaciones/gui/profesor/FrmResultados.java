@@ -50,7 +50,6 @@ public class FrmResultados extends JFrame {
         btnListar.addActionListener(e -> listar());
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuProfesorFrame().setVisible(true);
         });
 
         add(panel, BorderLayout.NORTH);

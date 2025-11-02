@@ -59,7 +59,6 @@ public class FrmAsociarEvaluacionGrupo extends JFrame {
         JButton btnRegresar = crearBoton("Regresar", new Color(127, 140, 141));
         btnRegresar.addActionListener(e -> {
             dispose();
-            new MenuProfesorFrame().setVisible(true);
         });
 
         JPanel botonesPanel = new JPanel(new FlowLayout());
