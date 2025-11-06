@@ -2,7 +2,6 @@ package com.mycompany.programa1matriculacalificaciones.gui.profesor;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;

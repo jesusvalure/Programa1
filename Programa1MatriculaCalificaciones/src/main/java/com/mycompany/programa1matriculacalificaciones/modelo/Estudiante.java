@@ -1,11 +1,10 @@
 package com.mycompany.programa1matriculacalificaciones.modelo;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Estudiante extends Persona implements Serializable {
+public class Estudiante extends Persona {
     private static final long serialVersionUID = 1L;
 
     private List<String> temasInteres = new ArrayList<>();

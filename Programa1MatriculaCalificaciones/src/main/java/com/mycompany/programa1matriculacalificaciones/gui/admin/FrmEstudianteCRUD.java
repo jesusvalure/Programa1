@@ -5,7 +5,6 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService;
-import com.mycompany.programa1matriculacalificaciones.servicio.AuthService;
 import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmEstudianteCRUD extends JFrame {
