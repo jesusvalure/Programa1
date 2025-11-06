@@ -37,7 +37,9 @@ public class AdministradorService implements Serializable {
 
     public Estudiante buscarPorId(String id) {
         for (Estudiante e : estudiantes) {
-            if (e.getIdentificacion().equals(id)) return e;
+            if (e != null && e.getIdentificacion() != null && e.getIdentificacion().equals(id)) {
+                return e;
+            }
         }
         return null;
     }
