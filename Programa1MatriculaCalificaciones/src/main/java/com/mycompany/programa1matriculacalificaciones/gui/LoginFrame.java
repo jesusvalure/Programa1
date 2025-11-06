@@ -141,7 +141,7 @@ public class LoginFrame extends JFrame {
         // Guardar sesión actual
         com.mycompany.programa1matriculacalificaciones.util.SesionActual.iniciarSesion(usuario, rol);
 
-        JOptionPane.showMessageDialog(this, "Bienvenido, " + rol);
+        //JOptionPane.showMessageDialog(this, "Bienvenido, " + rol);
 
         dispose();
         switch (rol.toLowerCase()) {

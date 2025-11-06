@@ -5,6 +5,7 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService;
+import com.mycompany.programa1matriculacalificaciones.servicio.AuthService;
 import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmEstudianteCRUD extends JFrame {
@@ -23,7 +24,7 @@ public class FrmEstudianteCRUD extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(true);
-        setMinimumSize(new Dimension(950, 650));
+        setMinimumSize(new Dimension(1000, 800));
         initUI();
         listar(); // Cargar lista al iniciar
     }
@@ -224,7 +225,7 @@ public class FrmEstudianteCRUD extends JFrame {
         panelBotones.add(btnLimpiar);
         panelBotones.add(btnRegresar);
 
-        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridx = 0; gbc.gridy = 7;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
@@ -290,6 +291,8 @@ public class FrmEstudianteCRUD extends JFrame {
         Estudiante e = new Estudiante(nombre, apellido, apellido2, id, telefono, correo, direccion, 
                                      fechaNacimiento, genero, carrera, nivelEducativo, institucionProcedencia);
         adminService.agregarEstudiante(e);
+        
+
         
         // Crear usuario para el estudiante
         String contrasena = JOptionPane.showInputDialog(this, 
