@@ -9,6 +9,8 @@ public class Evaluacion implements Serializable {
     private String titulo;
     private String tipo;
     private boolean ordenAleatorio;
+    // Tiempo límite en minutos (0 = sin límite)
+    private int tiempoMinutos = 0;
     private List<Pregunta> preguntas;
 
     public Evaluacion(String titulo, String tipo, boolean ordenAleatorio) {
@@ -26,6 +28,10 @@ public class Evaluacion implements Serializable {
         this.ordenAleatorio = ordenAleatorio;
         this.preguntas = new ArrayList<>();
     }
+
+    // Tiempo límite opcional
+    public int getTiempoMinutos() { return tiempoMinutos; }
+    public void setTiempoMinutos(int tiempoMinutos) { this.tiempoMinutos = tiempoMinutos; }
 
     public String getId() { return id; }
     public String getTitulo() { return titulo; }

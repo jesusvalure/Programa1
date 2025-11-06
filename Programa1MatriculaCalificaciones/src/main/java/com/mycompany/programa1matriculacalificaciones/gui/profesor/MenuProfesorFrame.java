@@ -35,7 +35,8 @@ public class MenuProfesorFrame extends JFrame {
         JButton btnPreguntas = crearBoton("Gestionar Preguntas", new Color(46, 204, 113));
         JButton btnAsociarEval = crearBoton("Asignar Evaluación a Grupo", new Color(46, 204, 113));
         JButton btnReportes = crearBoton("Ver Reportes de Notas", new Color(46, 204, 113));
-        JButton btnRegresar = crearBoton("Cerrar sesión", new Color(231, 76, 60));
+    JButton btnCambiarContrasena = crearBoton("Cambiar contraseña", new Color(52, 152, 219));
+    JButton btnRegresar = crearBoton("Cerrar sesión", new Color(231, 76, 60));
 
         btnEvaluaciones.addActionListener(e -> {
             new FrmEvaluacionCRUD().setVisible(true);
@@ -48,6 +49,9 @@ public class MenuProfesorFrame extends JFrame {
         });
         btnReportes.addActionListener(e -> {
             new FrmResultados().setVisible(true);
+        });
+        btnCambiarContrasena.addActionListener(e -> {
+            new com.mycompany.programa1matriculacalificaciones.gui.FrmCambiarContrasena().setVisible(true);
         });
         btnRegresar.addActionListener(e -> {
             com.mycompany.programa1matriculacalificaciones.util.SesionActual.cerrarSesion();
@@ -63,7 +67,9 @@ public class MenuProfesorFrame extends JFrame {
         botones.add(Box.createVerticalStrut(10));
         botones.add(btnReportes);
         botones.add(Box.createVerticalStrut(20));
-        botones.add(btnRegresar);
+    botones.add(btnCambiarContrasena);
+    botones.add(Box.createVerticalStrut(10));
+    botones.add(btnRegresar);
 
         panel.add(lblTitulo, BorderLayout.NORTH);
         panel.add(botones, BorderLayout.CENTER);

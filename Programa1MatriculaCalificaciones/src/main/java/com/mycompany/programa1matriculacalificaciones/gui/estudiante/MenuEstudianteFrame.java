@@ -35,6 +35,7 @@ public class MenuEstudianteFrame extends JFrame {
         JButton btnEvaluaciones = crearBoton("Ver Evaluaciones Pendientes", new Color(243, 156, 18));
         JButton btnRealizarEval = crearBoton("Realizar Evaluación", new Color(243, 156, 18));
         JButton btnDesempeno = crearBoton("Ver Desempeño Académico", new Color(243, 156, 18));
+    JButton btnCambiarContrasena = crearBoton("Cambiar contraseña", new Color(52, 152, 219));
         JButton btnRegresar = crearBoton("Cerrar sesión", new Color(231, 76, 60));
 
         btnMatricular.addActionListener(e -> {
@@ -48,6 +49,9 @@ public class MenuEstudianteFrame extends JFrame {
         });
         btnDesempeno.addActionListener(e -> {
             new FrmDesempenoPersonal().setVisible(true);
+        });
+        btnCambiarContrasena.addActionListener(e -> {
+            new com.mycompany.programa1matriculacalificaciones.gui.FrmCambiarContrasena().setVisible(true);
         });
         btnRegresar.addActionListener(e -> {
             com.mycompany.programa1matriculacalificaciones.util.SesionActual.cerrarSesion();
@@ -63,7 +67,9 @@ public class MenuEstudianteFrame extends JFrame {
         botones.add(Box.createVerticalStrut(10));
         botones.add(btnDesempeno);
         botones.add(Box.createVerticalStrut(20));
-        botones.add(btnRegresar);
+    botones.add(btnCambiarContrasena);
+    botones.add(Box.createVerticalStrut(10));
+    botones.add(btnRegresar);
 
         panel.add(lblTitulo, BorderLayout.NORTH);
         panel.add(botones, BorderLayout.CENTER);

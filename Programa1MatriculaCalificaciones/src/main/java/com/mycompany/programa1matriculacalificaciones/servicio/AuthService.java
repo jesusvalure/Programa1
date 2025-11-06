@@ -37,4 +37,21 @@ public class AuthService {
     public void eliminarUsuario(String id) {
         usuarioService.eliminarUsuario(id);
     }
+
+    /**
+     * Cambia la contraseña de un usuario verificando la actual.
+     * @param id id del usuario
+     * @param contrasenaActual contraseña actual en texto plano
+     * @param nuevaContrasena nueva contraseña en texto plano
+     * @return true si el cambio fue exitoso
+     */
+    public boolean cambiarContrasena(String id, String contrasenaActual, String nuevaContrasena) {
+        if (id == null || contrasenaActual == null || nuevaContrasena == null) return false;
+        Usuario usuario = usuarioService.buscarPorId(id);
+        if (usuario == null) return false;
+        String encActual = Encriptador.encriptar(contrasenaActual);
+        if (!encActual.equals(usuario.getContrasenaEncriptada())) return false;
+        String encNueva = Encriptador.encriptar(nuevaContrasena);
+        return usuarioService.actualizarContrasena(id, encNueva);
+    }
 }

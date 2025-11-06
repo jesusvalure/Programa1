@@ -34,6 +34,7 @@ public class MenuAdministradorFrame extends JFrame {
         JButton btnCrudCurso = crearBoton("Gestionar Cursos", new Color(52, 152, 219));
         JButton btnGrupos = crearBoton("Gestionar Grupos", new Color(52, 152, 219));
         JButton btnReportes = crearBoton("Ver Reportes", new Color(52, 152, 219));
+    JButton btnCambiarContrasena = crearBoton("Cambiar contraseña", new Color(52, 152, 219));
         JButton btnRegresar = crearBoton("Cerrar sesión", new Color(231, 76, 60));
 
         btnCrudEst.addActionListener(e -> {
@@ -51,6 +52,9 @@ public class MenuAdministradorFrame extends JFrame {
         btnReportes.addActionListener(e -> {
             new FrmReportesAdmin().setVisible(true);
         });
+        btnCambiarContrasena.addActionListener(e -> {
+            new com.mycompany.programa1matriculacalificaciones.gui.FrmCambiarContrasena().setVisible(true);
+        });
         btnRegresar.addActionListener(e -> {
             dispose();
             new LoginFrame().setVisible(true);
@@ -66,7 +70,9 @@ public class MenuAdministradorFrame extends JFrame {
         botones.add(Box.createVerticalStrut(10));
         botones.add(btnReportes);
         botones.add(Box.createVerticalStrut(20));
-        botones.add(btnRegresar);
+    botones.add(btnCambiarContrasena);
+    botones.add(Box.createVerticalStrut(10));
+    botones.add(btnRegresar);
 
         panel.add(lblTitulo, BorderLayout.NORTH);
         panel.add(botones, BorderLayout.CENTER);

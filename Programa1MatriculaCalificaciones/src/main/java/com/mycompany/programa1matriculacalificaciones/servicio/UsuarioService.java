@@ -76,5 +76,19 @@ public class UsuarioService {
         }
         return map;
     }
+
+    /**
+     * Actualiza la contraseña encriptada de un usuario existente.
+     * @param id identificador del usuario
+     * @param nuevaContrasenaEncriptada contraseña ya encriptada
+     * @return true si se actualizó, false si no se encontró usuario
+     */
+    public boolean actualizarContrasena(String id, String nuevaContrasenaEncriptada) {
+        Usuario u = buscarPorId(id);
+        if (u == null) return false;
+        u.setContrasenaEncriptada(nuevaContrasenaEncriptada);
+        archivo.guardarLista(usuarios, RUTA);
+        return true;
+    }
 }
 

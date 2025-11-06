@@ -30,6 +30,12 @@ public class FrmRealizarEvaluacion extends JFrame {
     // Guarda posiciones aleatorias de palabras en SopaDeLetras
     private Map<String, SopaAleatoria> sopasAleatorias = new HashMap<>();
 
+    // Temporizador
+    private javax.swing.Timer temporizador;
+    private int segundosRestantes = 0;
+    private JLabel lblTimer;
+    private boolean envioForzadoPorTimer = false;
+
     public FrmRealizarEvaluacion() {
         setTitle("Realizar Evaluación");
         setSize(800, 600);
@@ -49,11 +55,16 @@ public class FrmRealizarEvaluacion extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(230, 126, 34));
 
-        cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluaciones().toArray(new Evaluacion[0]));
+    cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluaciones().toArray(new Evaluacion[0]));
         cmbEvaluacion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cmbEvaluacion.setBackground(Color.WHITE);
         cmbEvaluacion.setBorder(BorderFactory.createTitledBorder("Seleccione Evaluación"));
         cmbEvaluacion.addActionListener(e -> mostrarPreguntas());
+
+    lblTimer = new JLabel("");
+    lblTimer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    lblTimer.setForeground(new Color(192, 57, 43));
+    lblTimer.setHorizontalAlignment(SwingConstants.CENTER);
 
         panelPreguntas = new JPanel();
         panelPreguntas.setLayout(new BoxLayout(panelPreguntas, BoxLayout.Y_AXIS));
@@ -76,8 +87,12 @@ public class FrmRealizarEvaluacion extends JFrame {
         botones.add(btnEnviar);
         botones.add(btnRegresar);
 
-        panel.add(lblTitulo, BorderLayout.NORTH);
-        panel.add(cmbEvaluacion, BorderLayout.PAGE_START);
+    JPanel norte = new JPanel(new BorderLayout());
+    norte.setBackground(panel.getBackground());
+    norte.add(lblTitulo, BorderLayout.NORTH);
+    norte.add(cmbEvaluacion, BorderLayout.CENTER);
+    norte.add(lblTimer, BorderLayout.SOUTH);
+    panel.add(norte, BorderLayout.NORTH);
         panel.add(scroll, BorderLayout.CENTER);
         panel.add(botones, BorderLayout.PAGE_END);
 
@@ -98,6 +113,8 @@ public class FrmRealizarEvaluacion extends JFrame {
     }
 
     private void mostrarPreguntas() {
+        // Reiniciar temporizador si estaba corriendo
+        detenerTemporizador();
         panelPreguntas.removeAll();
         respuestas.clear();
         mapeosAleatorios.clear();
@@ -123,8 +140,40 @@ public class FrmRealizarEvaluacion extends JFrame {
             panelPreguntas.add(Box.createVerticalStrut(10));
         }
 
+        // Si la evaluación tiene tiempo límite, iniciar temporizador
+        if (eval != null && eval.getTiempoMinutos() > 0) {
+            segundosRestantes = eval.getTiempoMinutos() * 60;
+            actualizarEtiquetaTemporizador();
+            temporizador = new javax.swing.Timer(1000, e -> {
+                segundosRestantes--;
+                actualizarEtiquetaTemporizador();
+                if (segundosRestantes <= 0) {
+                    // Evitar reentradas múltiples
+                    envioForzadoPorTimer = true;
+                    detenerTemporizador();
+                    calcularNota();
+                }
+            });
+            temporizador.start();
+        } else {
+            lblTimer.setText("");
+        }
+
         panelPreguntas.revalidate();
         panelPreguntas.repaint();
+    }
+
+    private void actualizarEtiquetaTemporizador() {
+        int minutos = segundosRestantes / 60;
+        int segundos = segundosRestantes % 60;
+        lblTimer.setText(String.format("Tiempo restante: %02d:%02d", minutos, segundos));
+    }
+
+    private void detenerTemporizador() {
+        if (temporizador != null) {
+            temporizador.stop();
+            temporizador = null;
+        }
     }
 
     private JPanel crearPanelPregunta(Pregunta p) {
@@ -438,9 +487,11 @@ public class FrmRealizarEvaluacion extends JFrame {
             }
         }
 
-        // --- Guardar resultado ---
+    // --- Guardar resultado ---
         ResultadoEvaluacion resultado = new ResultadoEvaluacion(estudiante, eval, obtenido, total);
         new com.mycompany.programa1matriculacalificaciones.servicio.ResultadoService().registrarResultado(resultado);
+
+    // Si el envío fue forzado por el temporizador, indicarlo en el mensaje
 
         int preguntasCorrectas = 0;
         double valorPorPregunta = total / eval.getPreguntas().size();
@@ -461,7 +512,14 @@ public class FrmRealizarEvaluacion extends JFrame {
         
         // Limpiar y refrescar
         respuestas.clear();
+        envioForzadoPorTimer = false;
         mostrarPreguntas();
+    }
+
+    @Override
+    public void dispose() {
+        detenerTemporizador();
+        super.dispose();
     }
     
     // Clases auxiliares para manejar aleatorización

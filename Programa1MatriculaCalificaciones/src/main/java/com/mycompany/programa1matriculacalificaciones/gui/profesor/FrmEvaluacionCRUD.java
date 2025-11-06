@@ -12,6 +12,7 @@ import com.mycompany.programa1matriculacalificaciones.servicio.ProfesorService;
 public class FrmEvaluacionCRUD extends JFrame {
 
     private JTextField txtTitulo;
+    private JTextField txtTiempo;
     private JComboBox<String> cmbTipo;
     private JCheckBox chkAleatorio;
     private JTable tabla;
@@ -41,8 +42,8 @@ public class FrmEvaluacionCRUD extends JFrame {
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(3, 2, 10, 10));
         formPanel.setBackground(panel.getBackground());
-
         txtTitulo = crearCampoTexto("Título de la Evaluación");
+        txtTiempo = crearCampoTexto("Tiempo (minutos) - 0 sin límite");
         cmbTipo = new JComboBox<>(new String[]{
             "Selección Única", "Selección Múltiple", "Falso/Verdadero", "Pareo", "Sopa de Letras"
         });
@@ -54,9 +55,10 @@ public class FrmEvaluacionCRUD extends JFrame {
         chkAleatorio.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         chkAleatorio.setBackground(panel.getBackground());
 
-        formPanel.add(txtTitulo);
-        formPanel.add(cmbTipo);
-        formPanel.add(chkAleatorio);
+    formPanel.add(txtTitulo);
+    formPanel.add(cmbTipo);
+    formPanel.add(txtTiempo);
+    formPanel.add(chkAleatorio);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         botones.setBackground(panel.getBackground());
@@ -147,12 +149,23 @@ public class FrmEvaluacionCRUD extends JFrame {
         String tipo = (String) cmbTipo.getSelectedItem();
         boolean aleatorio = chkAleatorio.isSelected();
 
+        int tiempo = 0;
+        try {
+            String t = txtTiempo.getText().trim();
+            if (!t.isEmpty()) tiempo = Integer.parseInt(t);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Tiempo inválido", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (titulo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debe ingresar un título para la evaluación", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        profesorService.agregarEvaluacion(new Evaluacion(titulo, tipo, aleatorio));
+        com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion ev = new Evaluacion(titulo, tipo, aleatorio);
+        ev.setTiempoMinutos(tiempo);
+        profesorService.agregarEvaluacion(ev);
         cargarEvaluaciones();
         limpiarCampos();
     }
@@ -174,6 +187,7 @@ public class FrmEvaluacionCRUD extends JFrame {
                 }
             }
             chkAleatorio.setSelected(eval.isOrdenAleatorio());
+            txtTiempo.setText(String.valueOf(eval.getTiempoMinutos()));
         }
     }
 
@@ -202,6 +216,15 @@ public class FrmEvaluacionCRUD extends JFrame {
 
         // Preservar preguntas existentes
         Evaluacion evalActualizada = new Evaluacion(id, titulo, tipo, aleatorio);
+        // establecer tiempo
+        try {
+            String t = txtTiempo.getText().trim();
+            int tiempo = t.isEmpty() ? 0 : Integer.parseInt(t);
+            evalActualizada.setTiempoMinutos(tiempo);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Tiempo inválido", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         evalActualizada.getPreguntas().addAll(evalExistente.getPreguntas());
         
         profesorService.actualizarEvaluacion(evalActualizada);
