@@ -36,95 +36,72 @@ public class FrmProfesorCRUD extends JFrame {
         JLabel lblTitulo = new JLabel("Gestión de Profesores", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(52, 152, 219));
-
-        // Tabla con mejor diseño
-        modeloTabla = new DefaultTableModel(new Object[]{
-            "ID", "Nombre", "Apellido", "Teléfono", "Correo", "Especialidad", "Grado Académico"
-        }, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        tabla = new JTable(modeloTabla);
-        tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tabla.setRowHeight(25);
-        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tabla.setPreferredScrollableViewportSize(new Dimension(0, 200));
-        tabla.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                cargarProfesorSeleccionado();
-            }
-        });
         
-        // Panel de formulario con mejor layout
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(panel.getBackground());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 12, 10, 12); // Aumentar el espaciado entre componentes
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        txtNombre = new JTextField(25);
+        txtNombre = new JTextField(20);
         txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtNombre.setPreferredSize(new Dimension(200, 30));
-        txtNombre.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtNombre.setMinimumSize(new Dimension(200, 30));
         
-        txtApellido = new JTextField(25);
+        txtApellido = new JTextField(20);
         txtApellido.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtApellido.setPreferredSize(new Dimension(200, 30));
-        txtApellido.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtApellido.setMinimumSize(new Dimension(200, 30));
         
-        txtApellido2 = new JTextField(25);
+        txtApellido2 = new JTextField(20);
         txtApellido2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtApellido2.setPreferredSize(new Dimension(200, 30));
-        txtApellido2.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtApellido2.setMinimumSize(new Dimension(200, 30));
         
-        txtId = new JTextField(25);
+        txtId = new JTextField(20);
         txtId.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtId.setPreferredSize(new Dimension(200, 30));
-        txtId.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtId.setMinimumSize(new Dimension(200, 30));
         
-        txtTelefono = new JTextField(25);
+        txtTelefono = new JTextField(20);
         txtTelefono.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtTelefono.setPreferredSize(new Dimension(200, 30));
-        txtTelefono.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtTelefono.setMinimumSize(new Dimension(200, 30));
         
-        txtCorreo = new JTextField(25);
+        txtCorreo = new JTextField(20);
         txtCorreo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtCorreo.setPreferredSize(new Dimension(200, 30));
-        txtCorreo.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtCorreo.setMinimumSize(new Dimension(200, 30));
         
-        txtDireccion = new JTextField(25);
+        txtDireccion = new JTextField(20);
         txtDireccion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtDireccion.setPreferredSize(new Dimension(200, 30));
-        txtDireccion.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtDireccion.setMinimumSize(new Dimension(200, 30));
         
-        txtFechaNacimiento = new JTextField(25);
+        txtFechaNacimiento = new JTextField(20);
         txtFechaNacimiento.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtFechaNacimiento.setPreferredSize(new Dimension(200, 30));
-        txtFechaNacimiento.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtFechaNacimiento.setMinimumSize(new Dimension(200, 30));
         
-        txtEspecialidad = new JTextField(25);
+        txtEspecialidad = new JTextField(20);
         txtEspecialidad.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtEspecialidad.setPreferredSize(new Dimension(200, 30));
-        txtEspecialidad.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtEspecialidad.setMinimumSize(new Dimension(200, 30));
         
-        txtGradoAcademico = new JTextField(25);
+        txtGradoAcademico = new JTextField(20);
         txtGradoAcademico.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtGradoAcademico.setPreferredSize(new Dimension(200, 30));
-        txtGradoAcademico.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        txtGradoAcademico.setMinimumSize(new Dimension(200, 30));
         
         spnAniosExperiencia = new JSpinner(new SpinnerNumberModel(0, 0, 50, 1));
         spnAniosExperiencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         spnAniosExperiencia.setPreferredSize(new Dimension(200, 30));
-        spnAniosExperiencia.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         
         cmbGenero = new JComboBox<>(new String[]{"Masculino", "Femenino", "Otro"});
         cmbGenero.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cmbGenero.setPreferredSize(new Dimension(200, 30));
-        cmbGenero.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        ((JLabel)cmbGenero.getRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
+
+        // Panel de formulario con mejor layout
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(panel.getBackground());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8); // Aumentar el espaciado entre componentes
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Columna izquierda
         // Fila 1: Nombre
@@ -231,6 +208,26 @@ public class FrmProfesorCRUD extends JFrame {
         gbc.gridwidth = 4;
         gbc.anchor = GridBagConstraints.CENTER;
         formPanel.add(panelBotones, gbc);
+
+        // Tabla con mejor diseño
+        modeloTabla = new DefaultTableModel(new Object[]{
+            "ID", "Nombre", "Apellido", "Teléfono", "Correo", "Especialidad", "Grado Académico"
+        }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tabla = new JTable(modeloTabla);
+        tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tabla.setRowHeight(25);
+        tabla.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabla.setPreferredScrollableViewportSize(new Dimension(0, 200));
+        tabla.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                cargarProfesorSeleccionado();
+            }
+        });
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createTitledBorder("Profesores Registrados"));
