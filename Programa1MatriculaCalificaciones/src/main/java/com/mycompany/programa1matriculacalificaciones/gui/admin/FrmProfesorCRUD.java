@@ -41,58 +41,63 @@ public class FrmProfesorCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
+        gbc.insets = new Insets(10, 12, 10, 12); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
-
-        txtNombre = new JTextField(25);
-        txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNombre.setPreferredSize(new Dimension(200, 30));
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         
+        Dimension fieldSize = new Dimension(300, 40);
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 16);
+        Font labelFont = new Font("Segoe UI", Font.BOLD, 14);
+        
+        txtNombre = new JTextField(25);
+        txtNombre.setFont(fieldFont);
+        txtNombre.setPreferredSize(fieldSize);
+
         txtApellido = new JTextField(25);
-        txtApellido.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtApellido.setPreferredSize(new Dimension(200, 30));
+        txtApellido.setFont(fieldFont);
+        txtApellido.setPreferredSize(fieldSize);
         
         txtApellido2 = new JTextField(25);
-        txtApellido2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtApellido2.setPreferredSize(new Dimension(200, 30));
+        txtApellido2.setFont(fieldFont);
+        txtApellido2.setPreferredSize(fieldSize);
         
         txtId = new JTextField(25);
-        txtId.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtId.setPreferredSize(new Dimension(200, 30));
+        txtId.setFont(fieldFont);
+        txtId.setPreferredSize(fieldSize);
         
         txtTelefono = new JTextField(25);
-        txtTelefono.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtTelefono.setPreferredSize(new Dimension(200, 30));
+        txtTelefono.setFont(fieldFont);
+        txtTelefono.setPreferredSize(fieldSize);
         
         txtCorreo = new JTextField(25);
-        txtCorreo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtCorreo.setPreferredSize(new Dimension(200, 30));
+        txtCorreo.setFont(fieldFont);
+        txtCorreo.setPreferredSize(fieldSize);
         
         txtDireccion = new JTextField(25);
-        txtDireccion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDireccion.setPreferredSize(new Dimension(200, 30));
+        txtDireccion.setFont(fieldFont);
+        txtDireccion.setPreferredSize(fieldSize);
         
         txtFechaNacimiento = new JTextField(25);
-        txtFechaNacimiento.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtFechaNacimiento.setPreferredSize(new Dimension(200, 30));
+        txtFechaNacimiento.setFont(fieldFont);
+        txtFechaNacimiento.setPreferredSize(fieldSize);
         
         txtEspecialidad = new JTextField(25);
-        txtEspecialidad.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtEspecialidad.setPreferredSize(new Dimension(200, 30));
+        txtEspecialidad.setFont(fieldFont);
+        txtEspecialidad.setPreferredSize(fieldSize);
         
         txtGradoAcademico = new JTextField(25);
-        txtGradoAcademico.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtGradoAcademico.setPreferredSize(new Dimension(200, 30));
+        txtGradoAcademico.setFont(fieldFont);
+        txtGradoAcademico.setPreferredSize(fieldSize);
         
         spnAniosExperiencia = new JSpinner(new SpinnerNumberModel(0, 0, 50, 1));
-        spnAniosExperiencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        spnAniosExperiencia.setPreferredSize(new Dimension(200, 30));
+        spnAniosExperiencia.setFont(fieldFont);
+        spnAniosExperiencia.setPreferredSize(fieldSize);
         JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spnAniosExperiencia.getEditor();
         editor.getTextField().setHorizontalAlignment(JTextField.LEFT);
         
         cmbGenero = new JComboBox<>(new String[]{"Masculino", "Femenino", "Otro"});
-        cmbGenero.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbGenero.setPreferredSize(new Dimension(200, 30));
+        cmbGenero.setFont(fieldFont);
+        cmbGenero.setPreferredSize(fieldSize);
         ((JLabel)cmbGenero.getRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
 
         // Columna izquierda

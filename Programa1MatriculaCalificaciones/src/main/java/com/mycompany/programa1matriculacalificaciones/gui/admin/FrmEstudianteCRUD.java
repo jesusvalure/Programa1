@@ -59,8 +59,9 @@ public class FrmEstudianteCRUD extends JFrame {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(panel.getBackground());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10); // Aumentar el espaciado entre componentes
+        gbc.insets = new Insets(10, 12, 10, 12); // Aumentar el espaciado entre componentes
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         txtNombre = new JTextField(25);
         txtNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
