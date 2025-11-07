@@ -32,7 +32,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>com.mycompany.programa1matriculacalificaciones.app.Simulator</mainClass>
+          <mainClass>com.mycompany.programa1matriculacalificaciones.app.Programa1MatriculaCalificaciones</mainClass>
         </configuration>
       </plugin>
 
