@@ -90,7 +90,7 @@ public class FrmRealizarEvaluacion extends JFrame {
 
         // Botón para limpiar selección
         btnLimpiarSeleccion = crearBoton("Limpiar Selección", new Color(241, 196, 15));
-        btnLimpiarSeleccion.addActionListener(e -> limpiarSeleccionSopa());
+        btnLimpiarSeleccion.addActionListener(e -> limpiarSeleccionGeneral());
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         botones.setBackground(panel.getBackground());
@@ -290,28 +290,77 @@ public class FrmRealizarEvaluacion extends JFrame {
                 Map<String, String> paresOriginales = pr.getPares();
                 List<String> columnaIzq = new ArrayList<>(paresOriginales.keySet());
                 List<String> columnaDer = new ArrayList<>(paresOriginales.values());
-                
+
                 // Aleatorizar columnas si está habilitado
                 if (esAleatorio) {
                     Collections.shuffle(columnaIzq);
                     Collections.shuffle(columnaDer);
                     pareosAleatorios.put(p.getId(), new PareoAleatorio(columnaIzq, columnaDer, paresOriginales));
                 }
-                
-                panel.add(new JLabel("Empareje los siguientes elementos:"));
-                JPanel panelPareo = new JPanel(new GridLayout(0, 2, 10, 5));
+
+                panel.add(new JLabel("Empareje los elementos de la izquierda con los de la derecha:"));
+                panel.add(Box.createVerticalStrut(10));
+
+                // Crear panel para el pareo interactivo
+                JPanel panelPareo = new JPanel(new BorderLayout(10, 10));
                 panelPareo.setBackground(Color.WHITE);
-                
-                List<String> izq = esAleatorio ? columnaIzq : new ArrayList<>(paresOriginales.keySet());
-                List<String> der = esAleatorio ? columnaDer : new ArrayList<>(paresOriginales.values());
-                
-                for (int i = 0; i < izq.size(); i++) {
-                    panelPareo.add(new JLabel((i + 1) + ". " + izq.get(i)));
-                    if (i < der.size()) {
-                        panelPareo.add(new JLabel(der.get(i)));
+
+                // Panel para la columna izquierda (etiquetas)
+                JPanel panelIzquierda = new JPanel(new GridLayout(0, 1, 5, 5));
+                panelIzquierda.setBackground(Color.WHITE);
+                panelIzquierda.setBorder(BorderFactory.createTitledBorder("Elementos"));
+
+                // Panel para la columna derecha (combobox)
+                JPanel panelDerecha = new JPanel(new GridLayout(0, 1, 5, 5));
+                panelDerecha.setBackground(Color.WHITE);
+                panelDerecha.setBorder(BorderFactory.createTitledBorder("Emparejar con"));
+
+                List<String> elementosIzquierda = esAleatorio ? columnaIzq : new ArrayList<>(paresOriginales.keySet());
+                List<String> elementosDerecha = esAleatorio ? columnaDer : new ArrayList<>(paresOriginales.values());
+
+                // Guardar referencias a los combobox para poder limpiarlos después
+                List<JComboBox<String>> comboboxes = new ArrayList<>();
+
+                for (int i = 0; i < elementosIzquierda.size(); i++) {
+                    // Elemento de la izquierda (solo lectura)
+                    JLabel lblElemento = new JLabel((i + 1) + ". " + elementosIzquierda.get(i));
+                    lblElemento.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                    panelIzquierda.add(lblElemento);
+
+                    // Combobox para seleccionar emparejamiento
+                    JComboBox<String> combo = new JComboBox<>();
+                    combo.addItem("-- Seleccione --"); // Opción por defecto
+                    for (String elemento : elementosDerecha) {
+                        combo.addItem(elemento);
                     }
+                    combo.setBackground(Color.WHITE);
+                    combo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+                    // Guardar el índice original para referencia
+                    final int index = i;
+                    combo.addActionListener(e -> {
+                        // Guardar la respuesta cuando se selecciona algo
+                        if (combo.getSelectedIndex() > 0) {
+                            String elementoIzq = elementosIzquierda.get(index);
+                            String elementoDer = (String) combo.getSelectedItem();
+
+                            @SuppressWarnings("unchecked")
+                            Map<String, String> respuestasPareo = (Map<String, String>) respuestas.getOrDefault(p.getId(), new HashMap<String, String>());
+                            respuestasPareo.put(elementoIzq, elementoDer);
+                            respuestas.put(p.getId(), respuestasPareo);
+                        }
+                    });
+
+                    comboboxes.add(combo);
+                    panelDerecha.add(combo);
                 }
+
+                panelPareo.add(panelIzquierda, BorderLayout.WEST);
+                panelPareo.add(panelDerecha, BorderLayout.EAST);
                 panel.add(panelPareo);
+
+                // Guardar referencia a los comboboxes para limpiarlos después
+                respuestas.put("comboboxes_" + p.getId(), comboboxes);
             }
             case "sopa de letras" -> {
                 SopaDeLetras sl = (SopaDeLetras) p;
@@ -384,18 +433,21 @@ public class FrmRealizarEvaluacion extends JFrame {
 
                 sopaPanel.add(gridPanel, BorderLayout.CENTER);
 
-                // Panel para palabras encontradas (SOLO las encontradas)
-                JPanel palabrasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                palabrasPanel.setBackground(Color.WHITE);
-                palabrasPanel.setBorder(BorderFactory.createTitledBorder("Palabras encontradas"));
-                palabrasPanel.setName("palabrasEncontradas"); // Para identificarlo fácilmente
+                // REEMPLAZAR: Panel para el contador en lugar de la lista de palabras
+                JPanel contadorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                contadorPanel.setBackground(Color.WHITE);
+                contadorPanel.setBorder(BorderFactory.createTitledBorder("Progreso"));
 
-                // Inicialmente vacío - solo se mostrarán las encontradas
-                JLabel lblInicial = new JLabel("Ninguna palabra encontrada aún");
-                lblInicial.setForeground(Color.GRAY);
-                palabrasPanel.add(lblInicial);
+                // Etiqueta para mostrar el contador
+                JLabel lblContador = new JLabel("0/" + palabras.size() + " palabras encontradas");
+                lblContador.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                lblContador.setForeground(new Color(41, 128, 185)); // Color azul
+                contadorPanel.add(lblContador);
 
-                sopaPanel.add(palabrasPanel, BorderLayout.SOUTH);
+                // Guardar referencia al label del contador para actualizarlo después
+                respuestas.put("contador_" + p.getId(), lblContador);
+
+                sopaPanel.add(contadorPanel, BorderLayout.SOUTH);
                 panel.add(sopaPanel);
 
                 // Inicializar lista de palabras encontradas como vacía
@@ -623,7 +675,26 @@ public class FrmRealizarEvaluacion extends JFrame {
                     @SuppressWarnings("unchecked")
                     Map<String, String> respuestaEstudiante = (Map<String, String>) r;
                     Map<String, String> paresCorrectos = pr.getPares();
-                    if (paresCorrectos.equals(respuestaEstudiante)) {
+
+                    // Verificar si el pareo es correcto
+                    boolean pareoCorrecto = true;
+
+                    if (respuestaEstudiante.size() != paresCorrectos.size()) {
+                        pareoCorrecto = false;
+                    } else {
+                        for (Map.Entry<String, String> entry : respuestaEstudiante.entrySet()) {
+                            String clave = entry.getKey();
+                            String valorEstudiante = entry.getValue();
+                            String valorCorrecto = paresCorrectos.get(clave);
+
+                            if (!valorCorrecto.equals(valorEstudiante)) {
+                                pareoCorrecto = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (pareoCorrecto) {
                         obtenido += p.getValor();
                     }
                 }
@@ -740,13 +811,41 @@ public class FrmRealizarEvaluacion extends JFrame {
     }
 
     // Método para limpiar selección de sopa de letras - SIMPLIFICADO Y FUNCIONAL
-    private void limpiarSeleccionSopa() {
+    private void limpiarSeleccionGeneral() {
+        // 1. Limpiar selección de sopa de letras (funcionalidad original)
         for (JPanel gridPanel : gridsSopaActivos) {
             for (Component celdaComp : gridPanel.getComponents()) {
                 if (celdaComp instanceof JButton) {
                     JButton celda = (JButton) celdaComp;
                     if (celda.getBackground() == Color.YELLOW) {
                         celda.setBackground(Color.WHITE);
+                    }
+                }
+            }
+        }
+
+        // 2. Limpiar selecciones de pareo
+        for (String key : new ArrayList<>(respuestas.keySet())) {
+            if (key.startsWith("comboboxes_")) {
+                @SuppressWarnings("unchecked")
+                List<JComboBox<String>> comboboxes = (List<JComboBox<String>>) respuestas.get(key);
+                for (JComboBox<String> combo : comboboxes) {
+                    combo.setSelectedIndex(0); // Volver a "-- Seleccione --"
+                }
+            }
+        }
+
+        // 3. Limpiar respuestas guardadas de pareo
+        for (String key : new ArrayList<>(respuestas.keySet())) {
+            if (!key.startsWith("comboboxes_")) {
+                // Buscar claves que correspondan a IDs de preguntas de pareo
+                Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
+                if (eval != null) {
+                    for (Pregunta p : eval.getPreguntas()) {
+                        if (p.getId().equals(key) && p.getTipo().equalsIgnoreCase("pareo")) {
+                            respuestas.remove(key);
+                            break;
+                        }
                     }
                 }
             }
@@ -766,7 +865,6 @@ public class FrmRealizarEvaluacion extends JFrame {
 
         // Verificar si las celdas forman una línea recta
         if (!esLineaRecta(seleccionadas)) {
-            // NO hacer nada - la selección se mantiene amarilla hasta que el usuario la limpie manualmente
             return;
         }
 
@@ -798,15 +896,31 @@ public class FrmRealizarEvaluacion extends JFrame {
                     botonesGrid[celda.fila][celda.columna].setEnabled(false);
                 }
 
+                // ACTUALIZAR CONTADOR en lugar de la lista
+                actualizarContadorPalabras(preguntaId, palabrasEncontradas.size(), palabras.size());
+
                 JOptionPane.showMessageDialog(this, "¡Palabra encontrada: " + palabraEncontrada + "!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Actualizar lista de palabras encontradas
-                actualizarListaPalabrasEncontradas(palabrasEncontradas);
             } else {
                 JOptionPane.showMessageDialog(this, "Ya encontraste la palabra: " + palabraEncontrada, "Palabra duplicada", JOptionPane.INFORMATION_MESSAGE);
             }
         }
         // Si no es una palabra válida, NO hacer nada - la selección se mantiene amarilla
+    }
+    
+    private void actualizarContadorPalabras(String preguntaId, int encontradas, int total) {
+        JLabel lblContador = (JLabel) respuestas.get("contador_" + preguntaId);
+        if (lblContador != null) {
+            lblContador.setText(encontradas + "/" + total + " palabras encontradas");
+
+            // Cambiar color según el progreso
+            if (encontradas == total) {
+                lblContador.setForeground(new Color(39, 174, 96)); // Verde cuando está completo
+            } else if (encontradas > total / 2) {
+                lblContador.setForeground(new Color(243, 156, 18)); // Naranja cuando está a la mitad
+            } else {
+                lblContador.setForeground(new Color(41, 128, 185)); // Azul por defecto
+            }
+        }
     }
 
     // Método auxiliar para verificar si las celdas forman una línea recta
@@ -833,51 +947,6 @@ public class FrmRealizarEvaluacion extends JFrame {
         }
 
         return true;
-    }
-
-    // Método para actualizar la lista visual de palabras encontradas
-    private void actualizarListaPalabrasEncontradas(List<String> palabrasEncontradas) {
-        // Buscar el panel de palabras en la jerarquía de componentes
-        Component[] components = panelPreguntas.getComponents();
-        for (Component comp : components) {
-            if (comp instanceof JPanel) {
-                actualizarPanelPalabras((JPanel) comp, palabrasEncontradas);
-            }
-        }
-    }
-
-    private void actualizarPanelPalabras(JPanel panel, List<String> palabrasEncontradas) {
-        Component[] components = panel.getComponents();
-        for (Component comp : components) {
-            if (comp instanceof JPanel) {
-                JPanel subPanel = (JPanel) comp;
-                // Buscar por nombre o por texto del border
-                if ("palabrasEncontradas".equals(subPanel.getName()) || 
-                    (subPanel.getBorder() != null && 
-                     subPanel.getBorder().toString().toLowerCase().contains("palabras encontradas"))) {
-                    
-                    subPanel.removeAll();
-                    
-                    if (palabrasEncontradas.isEmpty()) {
-                        JLabel lblVacio = new JLabel("Ninguna palabra encontrada aún");
-                        lblVacio.setForeground(Color.GRAY);
-                        subPanel.add(lblVacio);
-                    } else {
-                        for (String palabra : palabrasEncontradas) {
-                            JLabel lblPalabra = new JLabel(palabra);
-                            lblPalabra.setForeground(Color.GREEN);
-                            lblPalabra.setFont(new Font("Segoe UI", Font.BOLD, 12));
-                            lblPalabra.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                            subPanel.add(lblPalabra);
-                        }
-                    }
-                    
-                    subPanel.revalidate();
-                    subPanel.repaint();
-                    break;
-                }
-            }
-        }
     }
 
     private String construirPalabraDesdeSeleccion(List<CeldaSeleccionada> seleccionadas) {
