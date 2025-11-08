@@ -5,6 +5,8 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.Timer;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.*;
@@ -15,7 +17,7 @@ public class FrmRealizarEvaluacion extends JFrame {
 
     private JComboBox<Evaluacion> cmbEvaluacion;
     private JPanel panelPreguntas;
-    private JButton btnEnviar, btnRegresar;
+    private JButton btnEnviar, btnRegresar, btnLimpiarSeleccion;
 
     private ProfesorService profesorService = new ProfesorService();
 
@@ -30,6 +32,9 @@ public class FrmRealizarEvaluacion extends JFrame {
     
     // Guarda posiciones aleatorias de palabras en SopaDeLetras
     private Map<String, SopaAleatoria> sopasAleatorias = new HashMap<>();
+
+    // Lista para almacenar los grids activos de sopa de letras
+    private List<JPanel> gridsSopaActivos = new ArrayList<>();
 
     // Temporizador
     private javax.swing.Timer temporizador;
@@ -83,9 +88,14 @@ public class FrmRealizarEvaluacion extends JFrame {
             dispose();
         });
 
+        // Botón para limpiar selección
+        btnLimpiarSeleccion = crearBoton("Limpiar Selección", new Color(241, 196, 15));
+        btnLimpiarSeleccion.addActionListener(e -> limpiarSeleccionSopa());
+
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         botones.setBackground(panel.getBackground());
         botones.add(btnEnviar);
+        botones.add(btnLimpiarSeleccion);
         botones.add(btnRegresar);
 
     JPanel norte = new JPanel(new BorderLayout());
@@ -121,6 +131,7 @@ public class FrmRealizarEvaluacion extends JFrame {
         mapeosAleatorios.clear();
         pareosAleatorios.clear();
         sopasAleatorias.clear();
+        gridsSopaActivos.clear(); // Limpiar la lista de grids activos
 
         Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
         if (eval == null || eval.getPreguntas().isEmpty()) {
@@ -312,11 +323,6 @@ public class FrmRealizarEvaluacion extends JFrame {
                 SopaAleatoria sopa = new SopaAleatoria(grid, palabras, tamano);
                 sopasAleatorias.put(p.getId(), sopa);
 
-                // Mostrar la pregunta específica
-                panel.add(new JLabel(sl.getPregunta() != null ? sl.getPregunta() : "Encuentra las siguientes palabras:"));
-                panel.add(new JLabel("Palabras a buscar: " + String.join(", ", palabras)));
-                panel.add(Box.createVerticalStrut(10));
-
                 // Panel para la sopa de letras interactiva
                 JPanel sopaPanel = new JPanel(new BorderLayout());
                 sopaPanel.setBackground(Color.WHITE);
@@ -324,15 +330,13 @@ public class FrmRealizarEvaluacion extends JFrame {
                 // Grid interactivo
                 JPanel gridPanel = new JPanel(new GridLayout(tamano, tamano, 2, 2));
                 gridPanel.setBackground(Color.WHITE);
-                gridPanel.setBorder(BorderFactory.createTitledBorder("Sopa de Letras - Haz clic y arrastra para seleccionar"));
+                gridPanel.setBorder(BorderFactory.createTitledBorder("Sopa de Letras - Selecciona las palabras"));
+
+                // Guardar referencia al grid activo
+                gridsSopaActivos.add(gridPanel);
 
                 // Matriz para almacenar los botones
                 JButton[][] botonesGrid = new JButton[tamano][tamano];
-
-                // Panel para palabras encontradas - INICIALMENTE VACÍO (hacerlo final)
-                final JPanel palabrasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                palabrasPanel.setBackground(Color.WHITE);
-                palabrasPanel.setBorder(BorderFactory.createTitledBorder("Palabras encontradas: 0/" + palabras.size()));
 
                 for (int i = 0; i < tamano; i++) {
                     for (int j = 0; j < tamano; j++) {
@@ -352,17 +356,24 @@ public class FrmRealizarEvaluacion extends JFrame {
 
                             public void mousePressed(java.awt.event.MouseEvent evt) {
                                 arrastrando = true;
-                                toggleSeleccion(celda, fila, columna);
+                                // Solo permitir selección si no es verde (ya encontrada)
+                                if (celda.getBackground() != Color.GREEN) {
+                                    celda.setBackground(Color.YELLOW);
+                                }
                             }
 
                             public void mouseReleased(java.awt.event.MouseEvent evt) {
                                 arrastrando = false;
-                                verificarPalabraSeleccionada(botonesGrid, p.getId(), palabras, tamano, palabrasPanel);
+                                // Verificar palabra solo si hay suficientes celdas seleccionadas
+                                List<CeldaSeleccionada> seleccionadas = obtenerCeldasSeleccionadas(botonesGrid, tamano);
+                                if (seleccionadas.size() >= 2) {
+                                    verificarPalabraSeleccionada(botonesGrid, p.getId(), palabras, tamano);
+                                }
                             }
 
                             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                                if (arrastrando) {
-                                    toggleSeleccion(celda, fila, columna);
+                                if (arrastrando && celda.getBackground() != Color.GREEN) {
+                                    celda.setBackground(Color.YELLOW);
                                 }
                             }
                         });
@@ -372,6 +383,18 @@ public class FrmRealizarEvaluacion extends JFrame {
                 }
 
                 sopaPanel.add(gridPanel, BorderLayout.CENTER);
+
+                // Panel para palabras encontradas (SOLO las encontradas)
+                JPanel palabrasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                palabrasPanel.setBackground(Color.WHITE);
+                palabrasPanel.setBorder(BorderFactory.createTitledBorder("Palabras encontradas"));
+                palabrasPanel.setName("palabrasEncontradas"); // Para identificarlo fácilmente
+
+                // Inicialmente vacío - solo se mostrarán las encontradas
+                JLabel lblInicial = new JLabel("Ninguna palabra encontrada aún");
+                lblInicial.setForeground(Color.GRAY);
+                palabrasPanel.add(lblInicial);
+
                 sopaPanel.add(palabrasPanel, BorderLayout.SOUTH);
                 panel.add(sopaPanel);
 
@@ -568,35 +591,41 @@ public class FrmRealizarEvaluacion extends JFrame {
         for (Pregunta p : eval.getPreguntas()) {
             total += p.getValor();
             Object r = respuestas.get(p.getId());
-            
+
             if (r == null) {
                 preguntasSinResponder++;
                 continue;
             }
 
-            boolean esCorrecta = false;
             switch (p.getTipo().toLowerCase()) {
                 case "selección única" -> {
                     SeleccionUnica su = (SeleccionUnica) p;
-                    esCorrecta = ((int) r == su.getIndiceCorrecto());
+                    if ((int) r == su.getIndiceCorrecto()) {
+                        obtenido += p.getValor();
+                    }
                 }
                 case "selección múltiple" -> {
                     SeleccionMultiple sm = (SeleccionMultiple) p;
                     @SuppressWarnings("unchecked")
                     Set<Integer> respuesta = (Set<Integer>) r;
-                    esCorrecta = sm.getIndicesCorrectos().equals(respuesta);
+                    if (sm.getIndicesCorrectos().equals(respuesta)) {
+                        obtenido += p.getValor();
+                    }
                 }
                 case "falso/verdadero" -> {
                     FalsoVerdadero fv = (FalsoVerdadero) p;
-                    esCorrecta = ((boolean) r == fv.isRespuestaCorrecta());
+                    if ((boolean) r == fv.isRespuestaCorrecta()) {
+                        obtenido += p.getValor();
+                    }
                 }
                 case "pareo" -> {
                     Pareo pr = (Pareo) p;
                     @SuppressWarnings("unchecked")
                     Map<String, String> respuestaEstudiante = (Map<String, String>) r;
                     Map<String, String> paresCorrectos = pr.getPares();
-                    // Verificar que todos los pares sean correctos
-                    esCorrecta = paresCorrectos.equals(respuestaEstudiante);
+                    if (paresCorrectos.equals(respuestaEstudiante)) {
+                        obtenido += p.getValor();
+                    }
                 }
                 case "sopa de letras" -> {
                     SopaDeLetras sl = (SopaDeLetras) p;
@@ -625,7 +654,7 @@ public class FrmRealizarEvaluacion extends JFrame {
         }
 
         double nota = (obtenido / total) * 100.0;
-        
+
         if (preguntasSinResponder > 0) {
             int opcion = JOptionPane.showConfirmDialog(this,
                 "Tiene " + preguntasSinResponder + " pregunta(s) sin responder.\n" +
@@ -637,11 +666,9 @@ public class FrmRealizarEvaluacion extends JFrame {
             }
         }
 
-    // --- Guardar resultado ---
+        // --- Guardar resultado ---
         ResultadoEvaluacion resultado = new ResultadoEvaluacion(estudiante, eval, obtenido, total);
         new com.mycompany.programa1matriculacalificaciones.servicio.ResultadoService().registrarResultado(resultado);
-
-    // Si el envío fue forzado por el temporizador, indicarlo en el mensaje
 
         int preguntasCorrectas = 0;
         double valorPorPregunta = total / eval.getPreguntas().size();
@@ -659,7 +686,7 @@ public class FrmRealizarEvaluacion extends JFrame {
         );
 
         JOptionPane.showMessageDialog(this, mensaje, "Resultado", JOptionPane.INFORMATION_MESSAGE);
-        
+
         // Limpiar y refrescar
         respuestas.clear();
         envioForzadoPorTimer = false;
@@ -697,18 +724,11 @@ public class FrmRealizarEvaluacion extends JFrame {
         }
     }
     
-    private void toggleSeleccion(JButton celda, int fila, int columna) {
-        if (celda.getBackground() == Color.YELLOW) {
-            celda.setBackground(Color.WHITE);
-        } else {
-            celda.setBackground(Color.YELLOW);
-        }
-    }
-
-    private void verificarPalabraSeleccionada(JButton[][] botonesGrid, String preguntaId, List<String> palabras, int tamano, JPanel palabrasPanel) {
-        // Recolectar letras seleccionadas y sus posiciones
+    // MÉTODOS NUEVOS PARA SOPA DE LETRAS MEJORADA
+    
+    // Método para obtener celdas seleccionadas
+    private List<CeldaSeleccionada> obtenerCeldasSeleccionadas(JButton[][] botonesGrid, int tamano) {
         List<CeldaSeleccionada> seleccionadas = new ArrayList<>();
-
         for (int i = 0; i < tamano; i++) {
             for (int j = 0; j < tamano; j++) {
                 if (botonesGrid[i][j].getBackground() == Color.YELLOW) {
@@ -716,30 +736,51 @@ public class FrmRealizarEvaluacion extends JFrame {
                 }
             }
         }
+        return seleccionadas;
+    }
 
-        if (seleccionadas.size() < 2) {
-            // Si hay menos de 2 letras seleccionadas, limpiar la selección
-            for (CeldaSeleccionada celda : seleccionadas) {
-                botonesGrid[celda.fila][celda.columna].setBackground(Color.WHITE);
+    // Método para limpiar selección de sopa de letras - SIMPLIFICADO Y FUNCIONAL
+    private void limpiarSeleccionSopa() {
+        for (JPanel gridPanel : gridsSopaActivos) {
+            for (Component celdaComp : gridPanel.getComponents()) {
+                if (celdaComp instanceof JButton) {
+                    JButton celda = (JButton) celdaComp;
+                    if (celda.getBackground() == Color.YELLOW) {
+                        celda.setBackground(Color.WHITE);
+                    }
+                }
             }
+        }
+    }
+
+    private void verificarPalabraSeleccionada(JButton[][] botonesGrid, String preguntaId, List<String> palabras, int tamano) {
+        List<CeldaSeleccionada> seleccionadas = obtenerCeldasSeleccionadas(botonesGrid, tamano);
+
+        if (seleccionadas.size() < 2) return;
+
+        // Ordenar las celdas seleccionadas para determinar la dirección
+        Collections.sort(seleccionadas, (a, b) -> {
+            if (a.fila != b.fila) return Integer.compare(a.fila, b.fila);
+            return Integer.compare(a.columna, b.columna);
+        });
+
+        // Verificar si las celdas forman una línea recta
+        if (!esLineaRecta(seleccionadas)) {
+            // NO hacer nada - la selección se mantiene amarilla hasta que el usuario la limpie manualmente
             return;
         }
 
-        // Construir palabras en todas las direcciones posibles
+        // Construir palabra en ambas direcciones
         String palabraNormal = construirPalabraDesdeSeleccion(seleccionadas);
+        Collections.reverse(seleccionadas);
+        String palabraReversa = construirPalabraDesdeSeleccion(seleccionadas);
+        Collections.reverse(seleccionadas); // Volver al orden original
 
-        // También probar en reversa
-        List<CeldaSeleccionada> reversa = new ArrayList<>(seleccionadas);
-        Collections.reverse(reversa);
-        String palabraReversa = construirPalabraDesdeSeleccion(reversa);
-
+        // Verificar si alguna de las palabras existe en la lista
         String palabraEncontrada = null;
-
-        // Verificar si alguna de las palabras coincide
-        for (String palabraBuscar : palabras) {
-            if (palabraNormal.equals(palabraBuscar.toUpperCase()) || 
-                palabraReversa.equals(palabraBuscar.toUpperCase())) {
-                palabraEncontrada = palabraBuscar;
+        for (String palabra : palabras) {
+            if (palabra.equalsIgnoreCase(palabraNormal) || palabra.equalsIgnoreCase(palabraReversa)) {
+                palabraEncontrada = palabra;
                 break;
             }
         }
@@ -751,69 +792,92 @@ public class FrmRealizarEvaluacion extends JFrame {
                 palabrasEncontradas.add(palabraEncontrada);
                 respuestas.put(preguntaId, palabrasEncontradas);
 
-                // Cambiar color a verde para indicar encontrada
+                // Marcar como encontrada (verde permanente)
                 for (CeldaSeleccionada celda : seleccionadas) {
                     botonesGrid[celda.fila][celda.columna].setBackground(Color.GREEN);
-                    // Hacer que las celdas verdes no sean clickeables
                     botonesGrid[celda.fila][celda.columna].setEnabled(false);
                 }
 
-                // ACTUALIZAR EL PANEL DE PALABRAS ENCONTRADAS
-                actualizarPanelPalabrasEncontradas(palabrasPanel, palabrasEncontradas, palabras.size());
-
                 JOptionPane.showMessageDialog(this, "¡Palabra encontrada: " + palabraEncontrada + "!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                
+                // Actualizar lista de palabras encontradas
+                actualizarListaPalabrasEncontradas(palabrasEncontradas);
+            } else {
+                JOptionPane.showMessageDialog(this, "Ya encontraste la palabra: " + palabraEncontrada, "Palabra duplicada", JOptionPane.INFORMATION_MESSAGE);
             }
-        } else {
-            // No es una palabra válida - resetear colores después de un breve momento
-            Timer timer = new Timer(500, e -> {
-                for (CeldaSeleccionada celda : seleccionadas) {
-                    if (botonesGrid[celda.fila][celda.columna].getBackground() == Color.YELLOW) {
-                        botonesGrid[celda.fila][celda.columna].setBackground(Color.WHITE);
-                    }
-                }
-            });
-            timer.setRepeats(false);
-            timer.start();
+        }
+        // Si no es una palabra válida, NO hacer nada - la selección se mantiene amarilla
+    }
+
+    // Método auxiliar para verificar si las celdas forman una línea recta
+    private boolean esLineaRecta(List<CeldaSeleccionada> seleccionadas) {
+        if (seleccionadas.size() <= 1) return true;
+
+        int diffFila = seleccionadas.get(1).fila - seleccionadas.get(0).fila;
+        int diffColumna = seleccionadas.get(1).columna - seleccionadas.get(0).columna;
+
+        // Normalizar la dirección (-1, 0, 1)
+        diffFila = Integer.compare(diffFila, 0);
+        diffColumna = Integer.compare(diffColumna, 0);
+
+        for (int i = 1; i < seleccionadas.size(); i++) {
+            int currentDiffFila = seleccionadas.get(i).fila - seleccionadas.get(i-1).fila;
+            int currentDiffColumna = seleccionadas.get(i).columna - seleccionadas.get(i-1).columna;
+
+            currentDiffFila = Integer.compare(currentDiffFila, 0);
+            currentDiffColumna = Integer.compare(currentDiffColumna, 0);
+
+            if (currentDiffFila != diffFila || currentDiffColumna != diffColumna) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Método para actualizar la lista visual de palabras encontradas
+    private void actualizarListaPalabrasEncontradas(List<String> palabrasEncontradas) {
+        // Buscar el panel de palabras en la jerarquía de componentes
+        Component[] components = panelPreguntas.getComponents();
+        for (Component comp : components) {
+            if (comp instanceof JPanel) {
+                actualizarPanelPalabras((JPanel) comp, palabrasEncontradas);
+            }
         }
     }
-    
-    private void actualizarPanelPalabrasEncontradas(JPanel palabrasPanel, List<String> palabrasEncontradas, int totalPalabras) {
-        // Limpiar el panel actual
-        palabrasPanel.removeAll();
 
-        // Actualizar el título con el contador
-        palabrasPanel.setBorder(BorderFactory.createTitledBorder(
-            "Palabras encontradas: " + palabrasEncontradas.size() + "/" + totalPalabras
-        ));
-
-        // Agregar solo las palabras encontradas
-        for (String palabra : palabrasEncontradas) {
-            JLabel lblPalabra = new JLabel(palabra);
-            lblPalabra.setForeground(new Color(46, 204, 113)); // Verde para encontradas
-            lblPalabra.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            lblPalabra.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(46, 204, 113)),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-            ));
-            lblPalabra.setOpaque(true);
-            lblPalabra.setBackground(new Color(240, 255, 240)); // Fondo verde claro
-            palabrasPanel.add(lblPalabra);
-
-            // Agregar un pequeño espacio entre palabras
-            palabrasPanel.add(Box.createHorizontalStrut(5));
+    private void actualizarPanelPalabras(JPanel panel, List<String> palabrasEncontradas) {
+        Component[] components = panel.getComponents();
+        for (Component comp : components) {
+            if (comp instanceof JPanel) {
+                JPanel subPanel = (JPanel) comp;
+                // Buscar por nombre o por texto del border
+                if ("palabrasEncontradas".equals(subPanel.getName()) || 
+                    (subPanel.getBorder() != null && 
+                     subPanel.getBorder().toString().toLowerCase().contains("palabras encontradas"))) {
+                    
+                    subPanel.removeAll();
+                    
+                    if (palabrasEncontradas.isEmpty()) {
+                        JLabel lblVacio = new JLabel("Ninguna palabra encontrada aún");
+                        lblVacio.setForeground(Color.GRAY);
+                        subPanel.add(lblVacio);
+                    } else {
+                        for (String palabra : palabrasEncontradas) {
+                            JLabel lblPalabra = new JLabel(palabra);
+                            lblPalabra.setForeground(Color.GREEN);
+                            lblPalabra.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                            lblPalabra.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                            subPanel.add(lblPalabra);
+                        }
+                    }
+                    
+                    subPanel.revalidate();
+                    subPanel.repaint();
+                    break;
+                }
+            }
         }
-
-        // Si no hay palabras encontradas, agregar un mensaje
-        if (palabrasEncontradas.isEmpty()) {
-            JLabel lblVacio = new JLabel("Aún no has encontrado palabras");
-            lblVacio.setForeground(Color.GRAY);
-            lblVacio.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-            palabrasPanel.add(lblVacio);
-        }
-
-        // Refrescar el panel
-        palabrasPanel.revalidate();
-        palabrasPanel.repaint();
     }
 
     private String construirPalabraDesdeSeleccion(List<CeldaSeleccionada> seleccionadas) {

@@ -9,7 +9,11 @@ public class SopaDeLetras extends Pregunta {
 
     public SopaDeLetras(String enunciado, double valor, List<String> palabras, int tamaño, String pregunta) {
         super(enunciado, valor);
-        this.palabras = new ArrayList<>(palabras);
+        // Normalizar palabras a mayúsculas
+        this.palabras = new ArrayList<>();
+        for (String palabra : palabras) {
+            this.palabras.add(palabra.toUpperCase().replace(" ", ""));
+        }
         this.tamaño = tamaño;
         this.pregunta = pregunta;
     }
