@@ -12,7 +12,6 @@ public class FrmEvaluacionCRUD extends JFrame {
 
     private JTextField txtTitulo;
     private JTextField txtTiempo;
-    private JComboBox<String> cmbTipo;
     private JCheckBox chkAleatorio;
     private JTable tabla;
     private DefaultTableModel modeloTabla;
@@ -39,25 +38,18 @@ public class FrmEvaluacionCRUD extends JFrame {
         lblTitulo.setForeground(new Color(39, 174, 96));
 
         JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(3, 2, 10, 10));
+        formPanel.setLayout(new GridLayout(2, 2, 10, 10));
         formPanel.setBackground(panel.getBackground());
         txtTitulo = crearCampoTexto("Título de la Evaluación");
         txtTiempo = crearCampoTexto("Tiempo (minutos) - 0 sin límite");
-        cmbTipo = new JComboBox<>(new String[]{
-            "Selección Única", "Selección Múltiple", "Falso/Verdadero", "Pareo", "Sopa de Letras"
-        });
-        cmbTipo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cmbTipo.setBackground(Color.WHITE);
-        cmbTipo.setBorder(BorderFactory.createTitledBorder("Tipo de Pregunta"));
 
         chkAleatorio = new JCheckBox("Mostrar en orden aleatorio");
         chkAleatorio.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         chkAleatorio.setBackground(panel.getBackground());
 
-    formPanel.add(txtTitulo);
-    formPanel.add(cmbTipo);
-    formPanel.add(txtTiempo);
-    formPanel.add(chkAleatorio);
+        formPanel.add(txtTitulo);
+        formPanel.add(txtTiempo);
+        formPanel.add(chkAleatorio);
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         botones.setBackground(panel.getBackground());
@@ -82,7 +74,6 @@ public class FrmEvaluacionCRUD extends JFrame {
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createTitledBorder("Evaluaciones Existentes"));
 
-        // --- Eventos ---
         btnAgregar.addActionListener(e -> agregarEvaluacion());
         btnEditar.addActionListener(e -> editarEvaluacion());
         btnEliminar.addActionListener(e -> eliminarEvaluacion());
@@ -131,7 +122,6 @@ public class FrmEvaluacionCRUD extends JFrame {
         return btn;
     }
 
-    // --- Lógica CRUD ---
     private void cargarEvaluaciones() {
         modeloTabla.setRowCount(0);
         List<Evaluacion> evaluaciones = profesorService.listarEvaluaciones();
@@ -145,7 +135,6 @@ public class FrmEvaluacionCRUD extends JFrame {
 
     private void agregarEvaluacion() {
         String titulo = txtTitulo.getText().trim();
-        String tipo = (String) cmbTipo.getSelectedItem();
         boolean aleatorio = chkAleatorio.isSelected();
 
         int tiempo = 0;
@@ -162,7 +151,7 @@ public class FrmEvaluacionCRUD extends JFrame {
             return;
         }
 
-        com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion ev = new Evaluacion(titulo, tipo, aleatorio);
+        com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion ev = new Evaluacion(titulo, "Mixta", aleatorio);
         ev.setTiempoMinutos(tiempo);
         boolean agregado = profesorService.agregarEvaluacion(ev);
         if (!agregado) {
@@ -181,14 +170,6 @@ public class FrmEvaluacionCRUD extends JFrame {
         Evaluacion eval = profesorService.obtenerEvaluacionPorId(id);
         if (eval != null) {
             txtTitulo.setText(eval.getTitulo());
-            // Buscar el índice del tipo en el combo box
-            String[] tipos = {"Selección Única", "Selección Múltiple", "Falso/Verdadero", "Pareo", "Sopa de Letras"};
-            for (int i = 0; i < tipos.length; i++) {
-                if (tipos[i].equals(eval.getTipo())) {
-                    cmbTipo.setSelectedIndex(i);
-                    break;
-                }
-            }
             chkAleatorio.setSelected(eval.isOrdenAleatorio());
             txtTiempo.setText(String.valueOf(eval.getTiempoMinutos()));
         }
@@ -214,12 +195,9 @@ public class FrmEvaluacionCRUD extends JFrame {
             return;
         }
 
-        String tipo = (String) cmbTipo.getSelectedItem();
         boolean aleatorio = chkAleatorio.isSelected();
 
-        // Preservar preguntas existentes
-        Evaluacion evalActualizada = new Evaluacion(id, titulo, tipo, aleatorio);
-        // establecer tiempo
+        Evaluacion evalActualizada = new Evaluacion(id, titulo, evalExistente.getTipo(), aleatorio);
         try {
             String t = txtTiempo.getText().trim();
             int tiempo = t.isEmpty() ? 0 : Integer.parseInt(t);
@@ -249,7 +227,7 @@ public class FrmEvaluacionCRUD extends JFrame {
 
     private void limpiarCampos() {
         txtTitulo.setText("");
-        cmbTipo.setSelectedIndex(0);
+        txtTiempo.setText("");
         chkAleatorio.setSelected(false);
     }
 }

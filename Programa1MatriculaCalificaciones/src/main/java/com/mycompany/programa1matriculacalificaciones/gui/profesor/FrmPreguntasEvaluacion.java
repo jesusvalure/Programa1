@@ -35,14 +35,12 @@ public class FrmPreguntasEvaluacion extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(39, 174, 96));
 
-        // --- Selección de evaluación ---
         cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluaciones().toArray(new Evaluacion[0]));
         cmbEvaluacion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cmbEvaluacion.setBackground(Color.WHITE);
         cmbEvaluacion.setBorder(BorderFactory.createTitledBorder("Seleccione Evaluación"));
         cmbEvaluacion.addActionListener(e -> cargarPreguntas());
 
-        // --- Tabla ---
         modeloTabla = new DefaultTableModel(new Object[]{"ID", "Tipo", "Enunciado", "Valor"}, 0);
         tablaPreguntas = new JTable(modeloTabla);
         tablaPreguntas.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -53,7 +51,6 @@ public class FrmPreguntasEvaluacion extends JFrame {
         JScrollPane scroll = new JScrollPane(tablaPreguntas);
         scroll.setBorder(BorderFactory.createTitledBorder("Preguntas de la Evaluación"));
 
-        // --- Botones ---
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         botones.setBackground(panel.getBackground());
 
@@ -117,6 +114,28 @@ public class FrmPreguntasEvaluacion extends JFrame {
             return;
         }
 
+        String[] tiposPregunta = {
+            "Selección única", 
+            "Selección múltiple", 
+            "Falso/verdadero", 
+            "Pareo", 
+            "Sopa de letras"
+        };
+        
+        String tipoSeleccionado = (String) JOptionPane.showInputDialog(
+            this,
+            "Seleccione el tipo de pregunta:",
+            "Tipo de Pregunta",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            tiposPregunta,
+            tiposPregunta[0]
+        );
+        
+        if (tipoSeleccionado == null) {
+            return;
+        }
+
         String enunciado = JOptionPane.showInputDialog(this, "Ingrese el enunciado de la pregunta:");
         if (enunciado == null || enunciado.trim().isEmpty()) {
             return;
@@ -128,7 +147,7 @@ public class FrmPreguntasEvaluacion extends JFrame {
         Pregunta nueva;
 
         try {
-            switch (eval.getTipo().toLowerCase()) {
+            switch (tipoSeleccionado.toLowerCase()) {
                 case "selección única":
                     nueva = crearSeleccionUnica(enunciado, valor);
                     break;
