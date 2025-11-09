@@ -26,6 +26,42 @@ public class ResultadoService {
         return new ArrayList<>(resultados);
     }
 
+    /**
+     * Lista los resultados de evaluaciones creadas por un profesor específico
+     * @param profesorId ID del profesor
+     * @return Lista de resultados del profesor
+     */
+    public List<ResultadoEvaluacion> listarResultadosPorProfesor(String profesorId) {
+        List<ResultadoEvaluacion> resultadosProfesor = new ArrayList<>();
+        for (ResultadoEvaluacion r : resultados) {
+            if (r.getProfesorId() != null && r.getProfesorId().equals(profesorId)) {
+                resultadosProfesor.add(r);
+            }
+        }
+        return resultadosProfesor;
+    }
+
+    /**
+     * Filtra resultados por profesor y opcionalmente por evaluación y grupo
+     * @param profesorId ID del profesor
+     * @param evaluacionId ID de la evaluación (opcional, puede ser null)
+     * @param grupoId ID del grupo (opcional, puede ser null)
+     * @return Lista de resultados filtrados
+     */
+    public List<ResultadoEvaluacion> filtrarResultadosPorProfesor(String profesorId, String evaluacionId, String grupoId) {
+        List<ResultadoEvaluacion> resultadosFiltrados = new ArrayList<>();
+        for (ResultadoEvaluacion r : resultados) {
+            boolean coincideProfesor = r.getProfesorId() != null && r.getProfesorId().equals(profesorId);
+            boolean coincideEvaluacion = evaluacionId == null || (r.getEvaluacionId() != null && r.getEvaluacionId().equals(evaluacionId));
+            boolean coincideGrupo = grupoId == null || (r.getGrupoId() != null && r.getGrupoId().equals(grupoId));
+            
+            if (coincideProfesor && coincideEvaluacion && coincideGrupo) {
+                resultadosFiltrados.add(r);
+            }
+        }
+        return resultadosFiltrados;
+    }
+
     public List<ResultadoEvaluacion> resultadosPorEstudiante(String nombre) {
         List<ResultadoEvaluacion> lista = new ArrayList<>();
         for (ResultadoEvaluacion r : resultados) {
@@ -33,6 +69,4 @@ public class ResultadoService {
         }
         return lista;
     }
-
-    
 }

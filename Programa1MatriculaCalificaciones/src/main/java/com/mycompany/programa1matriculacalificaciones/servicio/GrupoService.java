@@ -34,6 +34,21 @@ public class GrupoService {
         return new ArrayList<>(grupos);
     }
 
+    /**
+     * Lista los grupos asignados a un profesor específico
+     * @param profesorId ID del profesor
+     * @return Lista de grupos del profesor
+     */
+    public List<Grupo> listarGruposPorProfesor(String profesorId) {
+        List<Grupo> gruposProfesor = new ArrayList<>();
+        for (Grupo g : grupos) {
+            if (g.getProfesorId() != null && g.getProfesorId().equals(profesorId)) {
+                gruposProfesor.add(g);
+            }
+        }
+        return gruposProfesor;
+    }
+
     public boolean eliminar(String codigo) {
         boolean eliminado = grupos.removeIf(g -> g.getCodigo().equals(codigo));
         if (eliminado) archivo.guardarLista(grupos, RUTA);
@@ -57,4 +72,3 @@ public class GrupoService {
         }
     }
 }
-

@@ -18,22 +18,83 @@ public class EvaluacionAsignadaService {
     }
 
     public void agregar(EvaluacionAsignada ea) {
-        asignaciones.add(ea);
-        archivo.guardarLista(asignaciones, RUTA);
+        // Verificar si ya existe una asignación igual
+        if (!asignaciones.contains(ea)) {
+            asignaciones.add(ea);
+            archivo.guardarLista(asignaciones, RUTA);
+        }
     }
 
     public List<EvaluacionAsignada> listar() {
         return new ArrayList<>(asignaciones);
     }
 
+    /**
+     * Lista las asignaciones de evaluaciones creadas por un profesor específico
+     * @param profesorId ID del profesor
+     * @return Lista de asignaciones del profesor
+     */
+    public List<EvaluacionAsignada> listarAsignacionesPorProfesor(String profesorId) {
+        List<EvaluacionAsignada> asignacionesProfesor = new ArrayList<>();
+        for (EvaluacionAsignada ea : asignaciones) {
+            if (ea.getProfesorId() != null && ea.getProfesorId().equals(profesorId)) {
+                asignacionesProfesor.add(ea);
+            }
+        }
+        return asignacionesProfesor;
+    }
+
     public List<EvaluacionAsignada> listarPorGrupo(Grupo grupo) {
         List<EvaluacionAsignada> resultado = new ArrayList<>();
         for (EvaluacionAsignada ea : asignaciones) {
-            if (ea.getGrupo().getCodigo().equals(grupo.getCodigo())) {
+            if (ea.getGrupo() != null && ea.getGrupo().getCodigo().equals(grupo.getCodigo())) {
                 resultado.add(ea);
             }
         }
         return resultado;
     }
-}
 
+    /**
+     * Obtiene evaluaciones asignadas vigentes para un grupo
+     * @param grupo Grupo para filtrar
+     * @return Lista de evaluaciones asignadas vigentes
+     */
+    public List<EvaluacionAsignada> listarVigentesPorGrupo(Grupo grupo) {
+        List<EvaluacionAsignada> resultado = new ArrayList<>();
+        for (EvaluacionAsignada ea : asignaciones) {
+            if (ea.getGrupo() != null && 
+                ea.getGrupo().getCodigo().equals(grupo.getCodigo()) && 
+                ea.estaVigente()) {
+                resultado.add(ea);
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Elimina una asignación específica
+     * @param ea EvaluacionAsignada a eliminar
+     * @return true si fue eliminada, false si no existía
+     */
+    public boolean eliminar(EvaluacionAsignada ea) {
+        boolean eliminado = asignaciones.remove(ea);
+        if (eliminado) {
+            archivo.guardarLista(asignaciones, RUTA);
+        }
+        return eliminado;
+    }
+
+    /**
+     * Actualiza una asignación existente
+     * @param eaActualizada EvaluacionAsignada actualizada
+     */
+    public void actualizar(EvaluacionAsignada eaActualizada) {
+        for (int i = 0; i < asignaciones.size(); i++) {
+            if (asignaciones.get(i).equals(eaActualizada)) {
+                asignaciones.set(i, eaActualizada);
+                archivo.guardarLista(asignaciones, RUTA);
+                break;
+            }
+        }
+    }
+}

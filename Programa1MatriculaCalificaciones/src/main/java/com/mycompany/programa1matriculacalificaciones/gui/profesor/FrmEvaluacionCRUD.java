@@ -7,6 +7,7 @@ import java.awt.*;
 import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion;
 import com.mycompany.programa1matriculacalificaciones.servicio.ProfesorService;
+import com.mycompany.programa1matriculacalificaciones.util.SesionActual;
 
 public class FrmEvaluacionCRUD extends JFrame {
 
@@ -16,9 +17,11 @@ public class FrmEvaluacionCRUD extends JFrame {
     private JTable tabla;
     private DefaultTableModel modeloTabla;
     private ProfesorService profesorService = new ProfesorService();
+    private String profesorId;
 
     public FrmEvaluacionCRUD() {
-        setTitle("Gestión de Evaluaciones");
+        this.profesorId = SesionActual.getUsuarioId();
+        setTitle("Gestión de Evaluaciones - Profesor: " + profesorId);
         setSize(900, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -33,7 +36,7 @@ public class FrmEvaluacionCRUD extends JFrame {
         panel.setBackground(new Color(245, 245, 245));
         panel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        JLabel lblTitulo = new JLabel("Gestión de Evaluaciones", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Gestión de Evaluaciones - Profesor: " + profesorId, SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(39, 174, 96));
 
@@ -64,7 +67,7 @@ public class FrmEvaluacionCRUD extends JFrame {
         botones.add(btnEliminar);
         botones.add(btnRegresar);
 
-        modeloTabla = new DefaultTableModel(new Object[]{"ID", "Título", "Tipo", "Aleatorio"}, 0);
+        modeloTabla = new DefaultTableModel(new Object[]{"ID", "Título", "Tipo", "Aleatorio", "Tiempo (min)"}, 0);
         tabla = new JTable(modeloTabla);
         tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tabla.setRowHeight(25);
@@ -72,7 +75,7 @@ public class FrmEvaluacionCRUD extends JFrame {
         tabla.setGridColor(new Color(220, 220, 220));
 
         JScrollPane scroll = new JScrollPane(tabla);
-        scroll.setBorder(BorderFactory.createTitledBorder("Evaluaciones Existentes"));
+        scroll.setBorder(BorderFactory.createTitledBorder("Mis Evaluaciones"));
 
         btnAgregar.addActionListener(e -> agregarEvaluacion());
         btnEditar.addActionListener(e -> editarEvaluacion());
@@ -124,11 +127,14 @@ public class FrmEvaluacionCRUD extends JFrame {
 
     private void cargarEvaluaciones() {
         modeloTabla.setRowCount(0);
-        List<Evaluacion> evaluaciones = profesorService.listarEvaluaciones();
+        List<Evaluacion> evaluaciones = profesorService.listarEvaluacionesPorProfesor(profesorId);
         for (Evaluacion e : evaluaciones) {
             modeloTabla.addRow(new Object[]{
-                e.getId(), e.getTitulo(), e.getTipo(),
-                e.isOrdenAleatorio() ? "Sí" : "No"
+                e.getId(), 
+                e.getTitulo(), 
+                e.getTipo(),
+                e.isOrdenAleatorio() ? "Sí" : "No",
+                e.getTiempoMinutos()
             });
         }
     }
@@ -151,8 +157,9 @@ public class FrmEvaluacionCRUD extends JFrame {
             return;
         }
 
-        com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion ev = new Evaluacion(titulo, "Mixta", aleatorio);
+        Evaluacion ev = new Evaluacion(titulo, "Mixta", aleatorio);
         ev.setTiempoMinutos(tiempo);
+        ev.setProfesorId(profesorId); // Asignar el ID del profesor
         boolean agregado = profesorService.agregarEvaluacion(ev);
         if (!agregado) {
             JOptionPane.showMessageDialog(this, "No fue posible agregar la evaluación (ID duplicado o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
@@ -160,6 +167,7 @@ public class FrmEvaluacionCRUD extends JFrame {
         }
         cargarEvaluaciones();
         limpiarCampos();
+        JOptionPane.showMessageDialog(this, "Evaluación creada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void cargarEvaluacionSeleccionada() {
@@ -168,7 +176,7 @@ public class FrmEvaluacionCRUD extends JFrame {
 
         String id = (String) modeloTabla.getValueAt(fila, 0);
         Evaluacion eval = profesorService.obtenerEvaluacionPorId(id);
-        if (eval != null) {
+        if (eval != null && eval.getProfesorId().equals(profesorId)) {
             txtTitulo.setText(eval.getTitulo());
             chkAleatorio.setSelected(eval.isOrdenAleatorio());
             txtTiempo.setText(String.valueOf(eval.getTiempoMinutos()));
@@ -189,6 +197,12 @@ public class FrmEvaluacionCRUD extends JFrame {
             return;
         }
 
+        // Verificar que la evaluación pertenece al profesor
+        if (!evalExistente.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede editar evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String titulo = txtTitulo.getText().trim();
         if (titulo.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debe ingresar un título para la evaluación", "Error", JOptionPane.ERROR_MESSAGE);
@@ -206,11 +220,13 @@ public class FrmEvaluacionCRUD extends JFrame {
             JOptionPane.showMessageDialog(this, "Tiempo inválido", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        evalActualizada.setProfesorId(profesorId);
         evalActualizada.getPreguntas().addAll(evalExistente.getPreguntas());
         
-    profesorService.actualizarEvaluacion(evalActualizada);
+        profesorService.actualizarEvaluacion(evalActualizada);
         cargarEvaluaciones();
         limpiarCampos();
+        JOptionPane.showMessageDialog(this, "Evaluación actualizada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void eliminarEvaluacion() {
@@ -221,8 +237,25 @@ public class FrmEvaluacionCRUD extends JFrame {
         }
 
         String id = (String) modeloTabla.getValueAt(fila, 0);
-        profesorService.eliminarEvaluacion(id);
-        cargarEvaluaciones();
+        Evaluacion eval = profesorService.obtenerEvaluacionPorId(id);
+        
+        // Verificar que la evaluación pertenece al profesor
+        if (eval != null && !eval.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede eliminar evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirmacion = JOptionPane.showConfirmDialog(this, 
+            "¿Está seguro de que desea eliminar la evaluación '" + eval.getTitulo() + "'?",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION);
+            
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            profesorService.eliminarEvaluacion(id);
+            cargarEvaluaciones();
+            limpiarCampos();
+            JOptionPane.showMessageDialog(this, "Evaluación eliminada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void limpiarCampos() {

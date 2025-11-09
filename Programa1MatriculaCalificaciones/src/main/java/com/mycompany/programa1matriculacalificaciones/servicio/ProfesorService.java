@@ -22,6 +22,21 @@ public class ProfesorService {
     }
 
     /**
+     * Lista las evaluaciones creadas por un profesor específico
+     * @param profesorId ID del profesor
+     * @return Lista de evaluaciones del profesor
+     */
+    public List<Evaluacion> listarEvaluacionesPorProfesor(String profesorId) {
+        List<Evaluacion> evaluacionesProfesor = new ArrayList<>();
+        for (Evaluacion e : evaluaciones) {
+            if (e.getProfesorId() != null && e.getProfesorId().equals(profesorId)) {
+                evaluacionesProfesor.add(e);
+            }
+        }
+        return evaluacionesProfesor;
+    }
+
+    /**
      * Agrega una evaluación si no existe otra con el mismo id.
      * @param e Evaluación a agregar
      * @return true si fue agregada, false si ya existía o entrada inválida
@@ -52,6 +67,21 @@ public class ProfesorService {
     public Evaluacion obtenerEvaluacionPorId(String id) {
         for (Evaluacion e : evaluaciones) {
             if (e.getId().equals(id)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Obtiene una evaluación específica de un profesor
+     * @param profesorId ID del profesor
+     * @param evaluacionId ID de la evaluación
+     * @return La evaluación si pertenece al profesor, null en caso contrario
+     */
+    public Evaluacion obtenerEvaluacionPorProfesorYId(String profesorId, String evaluacionId) {
+        for (Evaluacion e : evaluaciones) {
+            if (e.getId().equals(evaluacionId) && e.getProfesorId() != null && e.getProfesorId().equals(profesorId)) {
                 return e;
             }
         }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.mycompany.programa1matriculacalificaciones.modelo.*;
 import com.mycompany.programa1matriculacalificaciones.modelo.pregunta.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.ProfesorService;
+import com.mycompany.programa1matriculacalificaciones.util.SesionActual;
 
 public class FrmPreguntasEvaluacion extends JFrame {
 
@@ -16,9 +17,11 @@ public class FrmPreguntasEvaluacion extends JFrame {
     private JTable tablaPreguntas;
     private DefaultTableModel modeloTabla;
     private ProfesorService profesorService = new ProfesorService();
+    private String profesorId;
 
     public FrmPreguntasEvaluacion() {
-        setTitle("Gestión de Preguntas");
+        this.profesorId = SesionActual.getUsuarioId();
+        setTitle("Gestión de Preguntas - Profesor: " + profesorId);
         setSize(800, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -31,11 +34,12 @@ public class FrmPreguntasEvaluacion extends JFrame {
         panel.setBorder(new EmptyBorder(15, 20, 15, 20));
         panel.setBackground(new Color(245, 245, 245));
 
-        JLabel lblTitulo = new JLabel("Gestión de Preguntas por Evaluación", SwingConstants.CENTER);
+        JLabel lblTitulo = new JLabel("Gestión de Preguntas por Evaluación - Profesor: " + profesorId, SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(39, 174, 96));
 
-        cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluaciones().toArray(new Evaluacion[0]));
+        // Cargar solo evaluaciones del profesor
+        cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluacionesPorProfesor(profesorId).toArray(new Evaluacion[0]));
         cmbEvaluacion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cmbEvaluacion.setBackground(Color.WHITE);
         cmbEvaluacion.setBorder(BorderFactory.createTitledBorder("Seleccione Evaluación"));
@@ -97,6 +101,13 @@ public class FrmPreguntasEvaluacion extends JFrame {
         Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
         if (eval == null) return;
 
+        // Verificar que la evaluación pertenece al profesor
+        if (!eval.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede acceder a evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
+            cmbEvaluacion.setSelectedIndex(0);
+            return;
+        }
+
         for (Pregunta p : eval.getPreguntas()) {
             modeloTabla.addRow(new Object[]{
                 p.getId(),
@@ -111,6 +122,12 @@ public class FrmPreguntasEvaluacion extends JFrame {
         Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
         if (eval == null) {
             JOptionPane.showMessageDialog(this, "Seleccione una evaluación primero", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Verificar que la evaluación pertenece al profesor
+        if (!eval.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede modificar evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -299,6 +316,13 @@ public class FrmPreguntasEvaluacion extends JFrame {
         }
 
         Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
+        
+        // Verificar que la evaluación pertenece al profesor
+        if (!eval.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede modificar evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String id = (String) modeloTabla.getValueAt(fila, 0);
 
         for (Pregunta p : eval.getPreguntas()) {
@@ -315,6 +339,7 @@ public class FrmPreguntasEvaluacion extends JFrame {
 
         profesorService.actualizarEvaluacion(eval);
         cargarPreguntas();
+        JOptionPane.showMessageDialog(this, "Pregunta actualizada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void eliminarPregunta() {
@@ -325,11 +350,26 @@ public class FrmPreguntasEvaluacion extends JFrame {
         }
 
         Evaluacion eval = (Evaluacion) cmbEvaluacion.getSelectedItem();
+        
+        // Verificar que la evaluación pertenece al profesor
+        if (!eval.getProfesorId().equals(profesorId)) {
+            JOptionPane.showMessageDialog(this, "No puede modificar evaluaciones que no son de su propiedad", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String id = (String) modeloTabla.getValueAt(fila, 0);
 
-        eval.eliminarPregunta(id);
-        profesorService.actualizarEvaluacion(eval);
-        cargarPreguntas();
+        int confirmacion = JOptionPane.showConfirmDialog(this, 
+            "¿Está seguro de que desea eliminar esta pregunta?",
+            "Confirmar eliminación",
+            JOptionPane.YES_NO_OPTION);
+            
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            eval.eliminarPregunta(id);
+            profesorService.actualizarEvaluacion(eval);
+            cargarPreguntas();
+            JOptionPane.showMessageDialog(this, "Pregunta eliminada correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private double pedirValor() {
