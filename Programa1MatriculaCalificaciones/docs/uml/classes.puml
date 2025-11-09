@@ -1,0 +1,71 @@
+@startuml
+title Diagrama de clases - Programa1 (nivel bajo)
+
+class Persona {
+  - id: String
+  - nombre: String
+  - apellido: String
+  - correo: String
+}
+
+class Usuario {
+  - id: String
+  - username: String
+  - passwordHash: String
+  - rol: String
+}
+
+class Estudiante {
+  - matriculaId: String
+}
+
+class Profesor {
+  - codigoProfesor: String
+}
+
+class Curso {
+  - codigo: String
+  - nombre: String
+  - creditos: int
+}
+
+class Grupo {
+  - id: String
+  - codigoGrupo: String
+}
+
+class Matricula {
+  - id: String
+  - estudianteId: String
+  - grupoId: String
+}
+
+class Evaluacion {
+  - id: String
+  - titulo: String
+  - descripcion: String
+}
+
+class EvaluacionAsignada {
+  - id: String
+  - evaluacionId: String
+  - grupoId: String
+}
+
+class ResultadoEvaluacion {
+  - id: String
+  - evaluacionAsignadaId: String
+  - estudianteId: String
+  - puntuacion: double
+}
+
+Persona <|-- Estudiante
+Persona <|-- Profesor
+Usuario "1" *-- "1" Persona : referencia
+Curso "1" o-- "*" Grupo : contiene
+Grupo "1" o-- "*" Matricula : tiene
+Estudiante "1" o-- "*" Matricula : realiza
+Evaluacion "1" o-- "*" EvaluacionAsignada : se_asigna
+EvaluacionAsignada "1" o-- "*" ResultadoEvaluacion : genera
+
+@enduml
