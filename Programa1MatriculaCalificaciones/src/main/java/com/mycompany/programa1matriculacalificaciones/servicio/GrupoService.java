@@ -3,9 +3,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 import java.util.ArrayList;
 import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.modelo.Grupo;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class GrupoService {
-    private static final String RUTA = "datos/matriculaycalificaciones/grupos.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/grupos.dat";
     private ArchivoService<Grupo> archivo = new ArchivoService<>();
     private List<Grupo> grupos;
 
@@ -16,9 +17,17 @@ public class GrupoService {
         }
     }
 
-    public void agregar(Grupo g) {
+    /**
+     * Agrega un grupo si no existe otro con el mismo código.
+     * @param g Grupo a agregar
+     * @return true si fue agregado, false si ya existía o entrada inválida
+     */
+    public boolean agregar(Grupo g) {
+        if (g == null || g.getCodigo() == null) return false;
+        if (buscar(g.getCodigo()) != null) return false;
         grupos.add(g);
         archivo.guardarLista(grupos, RUTA);
+        return true;
     }
 
     public List<Grupo> listar() {

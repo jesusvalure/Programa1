@@ -2,6 +2,7 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion;
 import java.util.*;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class ProfesorService {
 
@@ -9,7 +10,7 @@ public class ProfesorService {
     private List<Evaluacion> evaluaciones;
 
     public ProfesorService() {
-        this.archivoService = new ArchivoService<>("datos/matriculaycalificaciones/evaluaciones.dat");
+        this.archivoService = new ArchivoService<>(PathConfig.BASE_DATA_DIR + "/evaluaciones.dat");
         this.evaluaciones = archivoService.cargar();
         if (this.evaluaciones == null) {
             this.evaluaciones = new ArrayList<>();
@@ -20,9 +21,17 @@ public class ProfesorService {
         return new ArrayList<>(evaluaciones);
     }
 
-    public void agregarEvaluacion(Evaluacion e) {
+    /**
+     * Agrega una evaluación si no existe otra con el mismo id.
+     * @param e Evaluación a agregar
+     * @return true si fue agregada, false si ya existía o entrada inválida
+     */
+    public boolean agregarEvaluacion(Evaluacion e) {
+        if (e == null || e.getId() == null) return false;
+        if (obtenerEvaluacionPorId(e.getId()) != null) return false;
         evaluaciones.add(e);
         archivoService.guardar(evaluaciones);
+        return true;
     }
 
     public void actualizarEvaluacion(Evaluacion eActualizada) {

@@ -170,7 +170,11 @@ public class FrmCursoCRUD extends JFrame {
                 return;
             }
 
-            cursoService.agregar(new Curso(cod, nom, cred));
+            boolean agregado = cursoService.agregar(new Curso(cod, nom, cred));
+            if (!agregado) {
+                JOptionPane.showMessageDialog(this, "No fue posible agregar el curso (ya existe o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             JOptionPane.showMessageDialog(this, "Curso agregado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             listar();
             limpiarCampos();
@@ -226,7 +230,11 @@ public class FrmCursoCRUD extends JFrame {
             if (!cod.equals(codigoOriginal)) {
                 // Si cambió el código, eliminar el viejo y agregar el nuevo
                 cursoService.eliminar(codigoOriginal);
-                cursoService.agregar(new Curso(cod, nom, cred));
+                boolean agregado = cursoService.agregar(new Curso(cod, nom, cred));
+                if (!agregado) {
+                    JOptionPane.showMessageDialog(this, "No fue posible actualizar el curso (el nuevo código ya existe).", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             } else {
                 // Si no cambió el código, solo actualizar
                 cursoService.actualizar(new Curso(cod, nom, cred));

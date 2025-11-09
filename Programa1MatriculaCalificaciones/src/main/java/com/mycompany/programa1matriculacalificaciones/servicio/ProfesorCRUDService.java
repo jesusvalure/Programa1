@@ -2,9 +2,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.Profesor;
 import java.util.*;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class ProfesorCRUDService {
-    private static final String RUTA = "datos/matriculaycalificaciones/profesores.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/profesores.dat";
     private ArchivoService<Profesor> archivo = new ArchivoService<>();
     private List<Profesor> profesores;
 
@@ -15,9 +16,17 @@ public class ProfesorCRUDService {
         }
     }
 
-    public void agregar(Profesor p) {
+    /**
+     * Agrega un profesor si no existe otro con la misma identificación.
+     * @param p Profesor a agregar
+     * @return true si fue agregado, false si ya existía o entrada inválida
+     */
+    public boolean agregar(Profesor p) {
+        if (p == null || p.getIdentificacion() == null) return false;
+        if (buscar(p.getIdentificacion()) != null) return false;
         profesores.add(p);
         archivo.guardarLista(profesores, RUTA);
+        return true;
     }
 
     public List<Profesor> listar() {

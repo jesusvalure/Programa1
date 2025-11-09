@@ -3,9 +3,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 import com.mycompany.programa1matriculacalificaciones.modelo.EvaluacionAsignada;
 import com.mycompany.programa1matriculacalificaciones.modelo.Grupo;
 import java.util.*;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class EvaluacionAsignadaService {
-    private static final String RUTA = "datos/matriculaycalificaciones/evaluaciones_asignadas.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/evaluaciones_asignadas.dat";
     private ArchivoService<EvaluacionAsignada> archivo = new ArchivoService<>();
     private List<EvaluacionAsignada> asignaciones;
 

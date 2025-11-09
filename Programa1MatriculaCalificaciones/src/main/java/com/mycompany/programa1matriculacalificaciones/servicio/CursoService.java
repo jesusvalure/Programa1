@@ -3,9 +3,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 import java.util.ArrayList;
 import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.modelo.Curso;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class CursoService {
-    private static final String RUTA = "datos/matriculaycalificaciones/cursos.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/cursos.dat";
     private ArchivoService<Curso> archivo = new ArchivoService<>();
     private List<Curso> cursos;
 
@@ -16,9 +17,17 @@ public class CursoService {
         }
     }
 
-    public void agregar(Curso c) {
+    /**
+     * Agrega un curso si no existe otro con el mismo código.
+     * @param c Curso a agregar
+     * @return true si fue agregado, false si ya existía o entrada inválida
+     */
+    public boolean agregar(Curso c) {
+        if (c == null || c.getCodigo() == null) return false;
+        if (buscar(c.getCodigo()) != null) return false;
         cursos.add(c);
         archivo.guardarLista(cursos, RUTA);
+        return true;
     }
 
     public List<Curso> listar() {

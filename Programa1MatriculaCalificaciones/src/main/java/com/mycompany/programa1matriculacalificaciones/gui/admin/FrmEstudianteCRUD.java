@@ -5,6 +5,7 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService;
+import com.mycompany.programa1matriculacalificaciones.util.Validator;
 import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmEstudianteCRUD extends JFrame {
@@ -281,6 +282,16 @@ public class FrmEstudianteCRUD extends JFrame {
             return;
         }
 
+        // Validaciones adicionales
+        if (!Validator.isEmailValid(correo)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!Validator.isPhoneValid(telefono)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un teléfono válido (sólo dígitos y signos +, espacios).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (adminService.buscarPorId(id) != null) {
             JOptionPane.showMessageDialog(this, "Ya existe un estudiante con esta identificación", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -289,7 +300,11 @@ public class FrmEstudianteCRUD extends JFrame {
         // Crear estudiante
         Estudiante e = new Estudiante(nombre, apellido, apellido2, id, telefono, correo, direccion, 
                                      fechaNacimiento, genero, carrera, nivelEducativo, institucionProcedencia);
-        adminService.agregarEstudiante(e);
+        boolean agregado = adminService.agregarEstudiante(e);
+        if (!agregado) {
+            JOptionPane.showMessageDialog(this, "No fue posible agregar el estudiante (ya existe o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
 
         
@@ -356,6 +371,17 @@ public class FrmEstudianteCRUD extends JFrame {
             JOptionPane.showMessageDialog(this, "Complete todos los campos", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        // Validaciones adicionales
+        String telefono = txtTelefono.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        if (!telefono.isEmpty() && !Validator.isPhoneValid(telefono)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un teléfono válido (sólo dígitos y signos +, espacios).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!correo.isEmpty() && !Validator.isEmailValid(correo)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         
         String idOriginal = estudianteSeleccionado.getIdentificacion();
         if (!id.equals(idOriginal) && adminService.buscarPorId(id) != null) {
@@ -367,7 +393,11 @@ public class FrmEstudianteCRUD extends JFrame {
             // Si cambió el ID, eliminar el viejo y agregar el nuevo
             adminService.eliminarEstudiante(idOriginal);
             Estudiante actualizado = new Estudiante(nombre, apellido, id);
-            adminService.agregarEstudiante(actualizado);
+            boolean agregado = adminService.agregarEstudiante(actualizado);
+            if (!agregado) {
+                JOptionPane.showMessageDialog(this, "No fue posible actualizar el estudiante (el nuevo ID ya existe).", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         } else {
             // Si no cambió el ID, solo actualizar
             Estudiante actualizado = new Estudiante(nombre, apellido, id);
@@ -424,4 +454,6 @@ public class FrmEstudianteCRUD extends JFrame {
         txtInstitucion.setText("");
         estudianteSeleccionado = null;
     }
+
+    // validation now delegated to Validator util
 }

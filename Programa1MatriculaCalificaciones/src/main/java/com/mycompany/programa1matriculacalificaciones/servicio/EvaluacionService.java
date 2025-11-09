@@ -3,9 +3,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 import java.util.ArrayList;
 import java.util.List;
 import com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class EvaluacionService {
-    private static final String RUTA = "datos/matriculaycalificaciones/evaluaciones.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/evaluaciones.dat";
     private ArchivoService<Evaluacion> archivo = new ArchivoService<>();
     private List<Evaluacion> evaluaciones;
 

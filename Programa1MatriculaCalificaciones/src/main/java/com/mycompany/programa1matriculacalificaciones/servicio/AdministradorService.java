@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 /**
  * Manejo real de estudiantes guardados en archivo.
  */
 public class AdministradorService implements Serializable {
-    private static final String RUTA_ESTUDIANTES = "datos/matriculaycalificaciones/estudiantes.dat";
+    private static final String RUTA_ESTUDIANTES = PathConfig.BASE_DATA_DIR + "/estudiantes.dat";
     private ArchivoService<Estudiante> archivo = new ArchivoService<>();
     private List<Estudiante> estudiantes;
 
@@ -20,9 +21,17 @@ public class AdministradorService implements Serializable {
         }
     }
 
-    public void agregarEstudiante(Estudiante e) {
+    /**
+     * Agrega un estudiante si no existe uno con la misma identificación.
+     * @param e Estudiante a agregar
+     * @return true si fue agregado, false si ya existía o entrada inválida
+     */
+    public boolean agregarEstudiante(Estudiante e) {
+        if (e == null || e.getIdentificacion() == null) return false;
+        if (buscarPorId(e.getIdentificacion()) != null) return false;
         estudiantes.add(e);
         archivo.guardarLista(estudiantes, RUTA_ESTUDIANTES);
+        return true;
     }
 
     public List<Estudiante> listarEstudiantes() {

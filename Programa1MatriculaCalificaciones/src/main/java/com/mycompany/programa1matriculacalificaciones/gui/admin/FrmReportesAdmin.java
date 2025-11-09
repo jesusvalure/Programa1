@@ -2,8 +2,17 @@ package com.mycompany.programa1matriculacalificaciones.gui.admin;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import com.mycompany.programa1matriculacalificaciones.servicio.*;
 import com.mycompany.programa1matriculacalificaciones.modelo.*;
 
@@ -13,6 +22,7 @@ public class FrmReportesAdmin extends JFrame {
     private ProfesorCRUDService profesorService = new ProfesorCRUDService();
     private GrupoService grupoService = new GrupoService();
     private ResultadoService resultadoService = new ResultadoService();
+    private MatriculaService matriculaService = new MatriculaService();
 
     public FrmReportesAdmin() {
         setTitle("Reportes Administrativos");
@@ -163,15 +173,81 @@ public class FrmReportesAdmin extends JFrame {
     }
 
     private void mostrarReporteGrupos() {
-        StringBuilder reporte = new StringBuilder("REPORTE DE GRUPOS\n");
+        StringBuilder reporte = new StringBuilder("REPORTE DE GRUPOS Y MATRÍCULAS\n");
         reporte.append("================================\n\n");
-        for (Grupo g : grupoService.listar()) {
-            reporte.append(String.format("Código: %s\nCurso: %s\nProfesor: %s %s\nEstudiantes: %d\n\n", 
-                g.getCodigo(), g.getCurso().getNombre(), 
-                g.getProfesor().getNombre(), g.getProfesor().getApellido1(),
-                g.getEstudiantes().size()));
+
+        // Total estudiantes registrados (para estadísticas)
+        int totalEstudiantes = adminService.listarEstudiantes() != null ? adminService.listarEstudiantes().size() : 0;
+
+        // Agrupar por curso -> grupos
+        List<Grupo> grupos = grupoService.listar();
+        if (grupos == null || grupos.isEmpty()) {
+            reporte.append("No hay grupos registrados.\n");
+            mostrarReporte("Grupos", reporte.toString());
+            ultimoReporte = reporte.toString();
+            return;
         }
-        mostrarReporte("Grupos", reporte.toString());
+
+        // Map cursoCodigo -> (map grupoCodigo -> list estudiantes)
+        Map<String, Map<String, List<Estudiante>>> datos = new LinkedHashMap<>();
+        Map<String, String> cursoNombres = new HashMap<>();
+
+        for (Grupo g : grupos) {
+            String cursoCodigo = g.getCurso() != null ? g.getCurso().getCodigo() : "SIN_CURSO";
+            cursoNombres.putIfAbsent(cursoCodigo, g.getCurso() != null ? g.getCurso().getNombre() : "-");
+            datos.putIfAbsent(cursoCodigo, new LinkedHashMap<>());
+
+            // Obtener estudiantes matriculados en este grupo via MatriculaService (más confiable)
+            List<Estudiante> alumnos = new ArrayList<>();
+            for (Matricula m : matriculaService.listar()) {
+                if (m.getGrupo() != null && m.getGrupo().getCodigo().equals(g.getCodigo()) && m.getEstudiante() != null) {
+                    alumnos.add(m.getEstudiante());
+                }
+            }
+
+            // Ordenar alfabéticamente por apellido1, luego nombre
+            alumnos.sort((a, b) -> {
+                String aKey = (a.getApellido1() != null ? a.getApellido1() : "") + " " + (a.getNombre() != null ? a.getNombre() : "");
+                String bKey = (b.getApellido1() != null ? b.getApellido1() : "") + " " + (b.getNombre() != null ? b.getNombre() : "");
+                return aKey.compareToIgnoreCase(bKey);
+            });
+
+            datos.get(cursoCodigo).put(g.getCodigo() + " - " + (g.getProfesor() != null ? g.getProfesor().getNombre() : "-"), alumnos);
+        }
+
+        // Construir reporte: por curso, mostrar estadísticas y grupos
+        for (String cursoCodigo : datos.keySet()) {
+            String nombreCurso = cursoNombres.getOrDefault(cursoCodigo, "-");
+            Map<String, List<Estudiante>> gruposMap = datos.get(cursoCodigo);
+
+            int inscritosCurso = 0;
+            for (List<Estudiante> lista : gruposMap.values()) inscritosCurso += lista.size();
+
+            reporte.append(String.format("CURSO: %s - %s\n", cursoCodigo, nombreCurso));
+            reporte.append(String.format("Total inscritos en el curso: %d\n", inscritosCurso));
+            if (totalEstudiantes > 0) {
+                double pct = (inscritosCurso * 100.0) / totalEstudiantes;
+                reporte.append(String.format("Porcentaje del total de estudiantes: %.2f%%\n", pct));
+            }
+            reporte.append("\n");
+
+            for (String grupoKey : gruposMap.keySet()) {
+                List<Estudiante> alumnos = gruposMap.get(grupoKey);
+                reporte.append(String.format("Grupo: %s - Matriculados: %d\n", grupoKey, alumnos.size()));
+                if (alumnos.isEmpty()) {
+                    reporte.append("  (Sin estudiantes)\n\n");
+                    continue;
+                }
+                reporte.append("  Lista de estudiantes (orden alfabético):\n");
+                for (Estudiante est : alumnos) {
+                    reporte.append(String.format("    - %s %s (ID: %s)\n", est.getApellido1() != null ? est.getApellido1() : "", est.getNombre() != null ? est.getNombre() : "", est.getIdentificacion() != null ? est.getIdentificacion() : "N/A"));
+                }
+                reporte.append("\n");
+            }
+            reporte.append("--------------------------------------------------\n\n");
+        }
+
+        mostrarReporte("Grupos y Matrículas", reporte.toString());
         ultimoReporte = reporte.toString();
     }
 

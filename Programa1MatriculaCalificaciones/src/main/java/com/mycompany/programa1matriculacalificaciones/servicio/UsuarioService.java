@@ -2,9 +2,10 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.Usuario;
 import java.util.*;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class UsuarioService {
-    private static final String RUTA = "datos/matriculaycalificaciones/usuarios.dat";
+    private static final String RUTA = PathConfig.BASE_DATA_DIR + "/usuarios.dat";
     private ArchivoService<Usuario> archivo = new ArchivoService<>();
     private List<Usuario> usuarios;
     

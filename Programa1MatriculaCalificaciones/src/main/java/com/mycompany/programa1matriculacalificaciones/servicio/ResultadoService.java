@@ -2,6 +2,7 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.ResultadoEvaluacion;
 import java.util.*;
+import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
 public class ResultadoService {
 
@@ -9,7 +10,7 @@ public class ResultadoService {
     private List<ResultadoEvaluacion> resultados;
 
     public ResultadoService() {
-        this.archivoService = new ArchivoService<>("datos/matriculaycalificaciones/resultados.dat");
+        this.archivoService = new ArchivoService<>(PathConfig.BASE_DATA_DIR + "/resultados.dat");
         this.resultados = archivoService.cargar();
         if (this.resultados == null) {
             this.resultados = new ArrayList<>();

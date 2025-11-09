@@ -204,7 +204,11 @@ public class FrmGrupoCRUD extends JFrame {
             return;
         }
 
-        grupoService.agregar(new Grupo(codigo, curso, prof));
+        boolean agregado = grupoService.agregar(new Grupo(codigo, curso, prof));
+        if (!agregado) {
+            JOptionPane.showMessageDialog(this, "No fue posible agregar el grupo (ya existe o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         JOptionPane.showMessageDialog(this, "Grupo agregado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         listar();
         limpiarCampos();

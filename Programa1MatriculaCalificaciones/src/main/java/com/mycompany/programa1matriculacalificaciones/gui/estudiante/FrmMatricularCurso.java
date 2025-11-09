@@ -203,19 +203,14 @@ public class FrmMatricularCurso extends JFrame {
             return;
         }
 
-        // Verificar si ya está matriculado en este grupo
-        for (Matricula m : matriculaService.listar()) {
-            if (m.getEstudiante().getIdentificacion().equals(estudianteId) && 
-                m.getGrupo().getCodigo().equals(grupo.getCodigo())) {
-                JOptionPane.showMessageDialog(this, 
-                    "Ya está matriculado en este grupo", 
-                    "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        }
-
         Matricula matricula = new Matricula(estudiante, grupo);
-        matriculaService.agregar(matricula);
+        boolean agregado = matriculaService.agregar(matricula);
+        if (!agregado) {
+            JOptionPane.showMessageDialog(this, 
+                "Ya está matriculado en este grupo", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         grupo.agregarEstudiante(estudiante);
         grupoService.actualizar(grupo);
         

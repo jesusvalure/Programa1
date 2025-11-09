@@ -164,7 +164,11 @@ public class FrmEvaluacionCRUD extends JFrame {
 
         com.mycompany.programa1matriculacalificaciones.modelo.Evaluacion ev = new Evaluacion(titulo, tipo, aleatorio);
         ev.setTiempoMinutos(tiempo);
-        profesorService.agregarEvaluacion(ev);
+        boolean agregado = profesorService.agregarEvaluacion(ev);
+        if (!agregado) {
+            JOptionPane.showMessageDialog(this, "No fue posible agregar la evaluación (ID duplicado o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         cargarEvaluaciones();
         limpiarCampos();
     }
@@ -226,7 +230,7 @@ public class FrmEvaluacionCRUD extends JFrame {
         }
         evalActualizada.getPreguntas().addAll(evalExistente.getPreguntas());
         
-        profesorService.actualizarEvaluacion(evalActualizada);
+    profesorService.actualizarEvaluacion(evalActualizada);
         cargarEvaluaciones();
         limpiarCampos();
     }

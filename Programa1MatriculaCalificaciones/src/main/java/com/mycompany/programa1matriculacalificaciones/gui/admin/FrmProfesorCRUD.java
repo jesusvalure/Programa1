@@ -5,6 +5,7 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.ProfesorCRUDService;
+import com.mycompany.programa1matriculacalificaciones.util.Validator;
 import com.mycompany.programa1matriculacalificaciones.modelo.Profesor;
 
 public class FrmProfesorCRUD extends JFrame {
@@ -315,6 +316,16 @@ public class FrmProfesorCRUD extends JFrame {
             return;
         }
 
+        // Validaciones adicionales
+        if (!Validator.isEmailValid(correo)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!Validator.isPhoneValid(telefono)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un teléfono válido (sólo dígitos y signos +, espacios).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (profesorService.buscar(id) != null) {
             JOptionPane.showMessageDialog(this, "Ya existe un profesor con esta identificación", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -323,8 +334,12 @@ public class FrmProfesorCRUD extends JFrame {
         // Crear profesor
         Profesor profesor = new Profesor(nombre, apellido, apellido2, id, telefono, correo, direccion, 
                                         fechaNacimiento, genero, especialidad, gradoAcademico, aniosExperiencia);
-        profesorService.agregar(profesor);
-        
+        boolean agregado = profesorService.agregar(profesor);
+        if (!agregado) {
+            JOptionPane.showMessageDialog(this, "No fue posible agregar el profesor (ya existe o datos inválidos).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Crear usuario para el profesor
         String contrasena = JOptionPane.showInputDialog(this, 
             "Ingrese una contraseña para el profesor " + nombre + ":", 
@@ -378,6 +393,15 @@ public class FrmProfesorCRUD extends JFrame {
             return;
         }
 
+        // Validaciones adicionales
+        if (!Validator.isPhoneValid(telefono)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un teléfono válido (sólo dígitos y signos +, espacios).", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!Validator.isEmailValid(correo)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         Profesor prof = profesorService.buscar(idOriginal);
         if (prof != null) {
             Profesor actualizado = new Profesor(nombre, apellido, apellido2, id, telefono, correo, direccion, 
@@ -387,7 +411,11 @@ public class FrmProfesorCRUD extends JFrame {
                 return;
             }
             profesorService.eliminar(idOriginal);
-            profesorService.agregar(actualizado);
+            boolean agregado = profesorService.agregar(actualizado);
+            if (!agregado) {
+                JOptionPane.showMessageDialog(this, "No fue posible actualizar el profesor (el nuevo ID ya existe).", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             JOptionPane.showMessageDialog(this, "Profesor actualizado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             cargarProfesores();
             limpiarCampos();
@@ -432,4 +460,6 @@ public class FrmProfesorCRUD extends JFrame {
         spnAniosExperiencia.setValue(0);
         cmbGenero.setSelectedIndex(0);
     }
+
+    // Validation delegated to Validator util
 }
