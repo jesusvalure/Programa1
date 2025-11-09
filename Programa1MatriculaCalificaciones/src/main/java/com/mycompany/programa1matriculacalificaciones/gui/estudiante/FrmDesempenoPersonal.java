@@ -6,6 +6,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.ResultadoService;
 import com.mycompany.programa1matriculacalificaciones.modelo.ResultadoEvaluacion;
+import com.mycompany.programa1matriculacalificaciones.util.SesionActual;
+import com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService;
+import com.mycompany.programa1matriculacalificaciones.modelo.Estudiante;
 
 public class FrmDesempenoPersonal extends JFrame {
 
@@ -61,6 +64,27 @@ public class FrmDesempenoPersonal extends JFrame {
 
     private void cargarDatos() {
         modelo.setRowCount(0);
+        // Si el usuario actual es un estudiante, mostrar solo sus resultados
+        if (SesionActual.estaLogueado() && "Estudiante".equalsIgnoreCase(SesionActual.getRol())) {
+            String usuarioId = SesionActual.getUsuarioId();
+            AdministradorService admin = new AdministradorService();
+            Estudiante e = admin.buscarPorId(usuarioId);
+            if (e != null) {
+                String nombreCompleto = e.getNombre() + (e.getApellido1() != null ? " " + e.getApellido1() : "");
+                for (ResultadoEvaluacion r : resultadoService.resultadosPorEstudiante(nombreCompleto)) {
+                    modelo.addRow(new Object[]{
+                        r.getFechaFormateada(),
+                        r.getTituloEvaluacion(),
+                        String.format("%.1f / %.1f", r.getPuntajeObtenido(), r.getPuntajeTotal()),
+                        String.format("%.1f%%", r.getNotaPorcentaje()),
+                        r.getEstudiante()
+                    });
+                }
+                return;
+            }
+        }
+
+        // Caso por defecto: mostrar todos los resultados
         for (ResultadoEvaluacion r : resultadoService.listarResultados()) {
             modelo.addRow(new Object[]{
                 r.getFechaFormateada(),

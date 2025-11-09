@@ -1,4 +1,4 @@
-## Portada
+# Portada
 
 Programa: Programa1 - Matrícula y Calificaciones
 
