@@ -42,5 +42,54 @@ public class MatriculaService {
     public List<Matricula> listar() {
         return new ArrayList<>(matriculas);
     }
-}
 
+    /**
+     * Obtiene las matrículas de un estudiante específico
+     * @param estudianteId ID del estudiante
+     * @return Lista de matrículas del estudiante
+     */
+    public List<Matricula> listarPorEstudiante(String estudianteId) {
+        List<Matricula> matriculasEstudiante = new ArrayList<>();
+        for (Matricula matricula : matriculas) {
+            if (matricula.getEstudiante() != null && 
+                matricula.getEstudiante().getIdentificacion().equals(estudianteId)) {
+                matriculasEstudiante.add(matricula);
+            }
+        }
+        return matriculasEstudiante;
+    }
+
+    /**
+     * Verifica si un estudiante está matriculado en un grupo específico
+     * @param estudianteId ID del estudiante
+     * @param grupoCodigo Código del grupo
+     * @return true si está matriculado, false si no
+     */
+    public boolean estaMatriculado(String estudianteId, String grupoCodigo) {
+        for (Matricula matricula : matriculas) {
+            if (matricula.getEstudiante() != null && matricula.getGrupo() != null &&
+                matricula.getEstudiante().getIdentificacion().equals(estudianteId) &&
+                matricula.getGrupo().getCodigo().equals(grupoCodigo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene los códigos de grupo en los que está matriculado un estudiante
+     * @param estudianteId ID del estudiante
+     * @return Set de códigos de grupo
+     */
+    public Set<String> obtenerGruposDelEstudiante(String estudianteId) {
+        Set<String> grupos = new HashSet<>();
+        for (Matricula matricula : matriculas) {
+            if (matricula.getEstudiante() != null && 
+                matricula.getEstudiante().getIdentificacion().equals(estudianteId) &&
+                matricula.getGrupo() != null) {
+                grupos.add(matricula.getGrupo().getCodigo());
+            }
+        }
+        return grupos;
+    }
+}

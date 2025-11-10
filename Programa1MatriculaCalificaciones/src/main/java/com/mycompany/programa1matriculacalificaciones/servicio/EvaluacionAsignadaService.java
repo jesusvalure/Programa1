@@ -2,6 +2,7 @@ package com.mycompany.programa1matriculacalificaciones.servicio;
 
 import com.mycompany.programa1matriculacalificaciones.modelo.EvaluacionAsignada;
 import com.mycompany.programa1matriculacalificaciones.modelo.Grupo;
+import com.mycompany.programa1matriculacalificaciones.modelo.Matricula;
 import java.util.*;
 import com.mycompany.programa1matriculacalificaciones.util.PathConfig;
 
@@ -96,5 +97,98 @@ public class EvaluacionAsignadaService {
                 break;
             }
         }
+    }
+
+    /**
+     * Verifica si ya existe una asignación para una evaluación y grupo específicos
+     */
+    public boolean existeAsignacion(String evaluacionId, String grupoCodigo) {
+        for (EvaluacionAsignada ea : asignaciones) {
+            if (ea.getEvaluacion() != null && ea.getGrupo() != null &&
+                ea.getEvaluacion().getId().equals(evaluacionId) && 
+                ea.getGrupo().getCodigo().equals(grupoCodigo)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene las evaluaciones asignadas a un estudiante específico
+     * @param estudianteId ID del estudiante
+     * @return Lista de evaluaciones asignadas al estudiante
+     */
+    public List<EvaluacionAsignada> listarPorEstudiante(String estudianteId) {
+        List<EvaluacionAsignada> evaluacionesEstudiante = new ArrayList<>();
+        
+        // Usar el nuevo método de MatriculaService
+        MatriculaService matriculaService = new MatriculaService();
+        Set<String> gruposEstudiante = matriculaService.obtenerGruposDelEstudiante(estudianteId);
+        
+        if (gruposEstudiante.isEmpty()) {
+            return evaluacionesEstudiante; // Estudiante no está en ningún grupo
+        }
+        
+        // Filtrar evaluaciones asignadas a los grupos del estudiante
+        for (EvaluacionAsignada ea : asignaciones) {
+            if (ea.getGrupo() != null && 
+                gruposEstudiante.contains(ea.getGrupo().getCodigo()) && 
+                ea.estaVigente()) {
+                evaluacionesEstudiante.add(ea);
+            }
+        }
+        
+        return evaluacionesEstudiante;
+    }
+
+    /**
+     * Elimina una asignación por evaluación y grupo
+     */
+    public boolean eliminarAsignacion(String evaluacionNombre, String grupoInfo) {
+        Iterator<EvaluacionAsignada> iterator = asignaciones.iterator();
+        while (iterator.hasNext()) {
+            EvaluacionAsignada ea = iterator.next();
+            if (ea.getEvaluacion() != null && ea.getGrupo() != null &&
+                ea.getEvaluacion().getTitulo().equals(evaluacionNombre) && 
+                (ea.getGrupo().getCodigo() + " - " + ea.getGrupo().getCurso().getNombre()).equals(grupoInfo)) {
+                iterator.remove();
+                archivo.guardarLista(asignaciones, RUTA);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Obtiene evaluaciones asignadas a un grupo específico por código de grupo
+     * @param grupoCodigo Código del grupo
+     * @return Lista de evaluaciones asignadas al grupo
+     */
+    public List<EvaluacionAsignada> listarPorCodigoGrupo(String grupoCodigo) {
+        List<EvaluacionAsignada> resultado = new ArrayList<>();
+        for (EvaluacionAsignada ea : asignaciones) {
+            if (ea.getGrupo() != null && ea.getGrupo().getCodigo().equals(grupoCodigo)) {
+                resultado.add(ea);
+            }
+        }
+        return resultado;
+    }
+
+    /**
+     * Obtiene evaluaciones asignadas vigentes para un estudiante
+     * @param estudianteId ID del estudiante
+     * @return Lista de evaluaciones vigentes para el estudiante
+     */
+    public List<EvaluacionAsignada> listarVigentesPorEstudiante(String estudianteId) {
+        List<EvaluacionAsignada> evaluacionesVigentes = new ArrayList<>();
+        List<EvaluacionAsignada> evaluacionesEstudiante = listarPorEstudiante(estudianteId);
+        
+        for (EvaluacionAsignada ea : evaluacionesEstudiante) {
+            if (ea.estaVigente()) {
+                evaluacionesVigentes.add(ea);
+            }
+        }
+        
+        return evaluacionesVigentes;
     }
 }

@@ -12,6 +12,8 @@ import javax.swing.Timer;
 import com.mycompany.programa1matriculacalificaciones.modelo.*;
 import com.mycompany.programa1matriculacalificaciones.modelo.pregunta.*;
 import com.mycompany.programa1matriculacalificaciones.servicio.ProfesorService;
+import com.mycompany.programa1matriculacalificaciones.servicio.EvaluacionAsignadaService; // IMPORTACIÓN AÑADIDA
+import com.mycompany.programa1matriculacalificaciones.servicio.MatriculaService; // IMPORTACIÓN AÑADIDA
 
 public class FrmRealizarEvaluacion extends JFrame {
 
@@ -61,16 +63,17 @@ public class FrmRealizarEvaluacion extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(new Color(230, 126, 34));
 
-    cmbEvaluacion = new JComboBox<>(profesorService.listarEvaluaciones().toArray(new Evaluacion[0]));
+        // MODIFICADO: Cargar solo evaluaciones del estudiante
+        cmbEvaluacion = new JComboBox<>(cargarEvaluacionesEstudiante().toArray(new Evaluacion[0]));
         cmbEvaluacion.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         cmbEvaluacion.setBackground(Color.WHITE);
         cmbEvaluacion.setBorder(BorderFactory.createTitledBorder("Seleccione Evaluación"));
         cmbEvaluacion.addActionListener(e -> mostrarPreguntas());
 
-    lblTimer = new JLabel("");
-    lblTimer.setFont(new Font("Segoe UI", Font.BOLD, 14));
-    lblTimer.setForeground(new Color(192, 57, 43));
-    lblTimer.setHorizontalAlignment(SwingConstants.CENTER);
+        lblTimer = new JLabel("");
+        lblTimer.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblTimer.setForeground(new Color(192, 57, 43));
+        lblTimer.setHorizontalAlignment(SwingConstants.CENTER);
 
         panelPreguntas = new JPanel();
         panelPreguntas.setLayout(new BoxLayout(panelPreguntas, BoxLayout.Y_AXIS));
@@ -98,12 +101,12 @@ public class FrmRealizarEvaluacion extends JFrame {
         botones.add(btnLimpiarSeleccion);
         botones.add(btnRegresar);
 
-    JPanel norte = new JPanel(new BorderLayout());
-    norte.setBackground(panel.getBackground());
-    norte.add(lblTitulo, BorderLayout.NORTH);
-    norte.add(cmbEvaluacion, BorderLayout.CENTER);
-    norte.add(lblTimer, BorderLayout.SOUTH);
-    panel.add(norte, BorderLayout.NORTH);
+        JPanel norte = new JPanel(new BorderLayout());
+        norte.setBackground(panel.getBackground());
+        norte.add(lblTitulo, BorderLayout.NORTH);
+        norte.add(cmbEvaluacion, BorderLayout.CENTER);
+        norte.add(lblTimer, BorderLayout.SOUTH);
+        panel.add(norte, BorderLayout.NORTH);
         panel.add(scroll, BorderLayout.CENTER);
         panel.add(botones, BorderLayout.PAGE_END);
 
@@ -632,8 +635,24 @@ public class FrmRealizarEvaluacion extends JFrame {
             return;
         }
 
-        String estudiante = JOptionPane.showInputDialog(this, "Ingrese su nombre completo:");
+        // Obtener el nombre del estudiante desde la sesión actual
+        String estudiante = obtenerNombreEstudianteDesdeSesion();
         if (estudiante == null || estudiante.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "No se pudo obtener su información. Por favor, inicie sesión nuevamente.", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Confirmar envío de la evaluación
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+            "¿Está seguro de que desea enviar la evaluación?\n" +
+            "Una vez enviada no podrá modificarla.",
+            "Confirmar envío",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+
+        if (confirmacion != JOptionPane.YES_OPTION) {
             return;
         }
 
@@ -724,18 +743,20 @@ public class FrmRealizarEvaluacion extends JFrame {
             return;
         }
 
-        double nota = (obtenido / total) * 100.0;
-
+        // Mostrar advertencia si hay preguntas sin responder
         if (preguntasSinResponder > 0) {
             int opcion = JOptionPane.showConfirmDialog(this,
                 "Tiene " + preguntasSinResponder + " pregunta(s) sin responder.\n" +
                 "¿Desea enviar la evaluación de todas formas?",
                 "Preguntas sin responder",
-                JOptionPane.YES_NO_OPTION);
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
             if (opcion != JOptionPane.YES_OPTION) {
                 return;
             }
         }
+
+        double nota = (obtenido / total) * 100.0;
 
         // --- Guardar resultado ---
         ResultadoEvaluacion resultado = new ResultadoEvaluacion(estudiante, eval, obtenido, total);
@@ -749,11 +770,12 @@ public class FrmRealizarEvaluacion extends JFrame {
 
         String mensaje = String.format(
             "Evaluación finalizada.\n\n" +
+            "Estudiante: %s\n" +
             "Puntaje obtenido: %.2f de %.2f puntos\n" +
             "Nota final: %.1f%%\n" +
             "Preguntas correctas: %d de %d\n\n" +
             "Resultado guardado exitosamente.",
-            obtenido, total, nota, preguntasCorrectas, eval.getPreguntas().size()
+            estudiante, obtenido, total, nota, preguntasCorrectas, eval.getPreguntas().size()
         );
 
         JOptionPane.showMessageDialog(this, mensaje, "Resultado", JOptionPane.INFORMATION_MESSAGE);
@@ -762,6 +784,68 @@ public class FrmRealizarEvaluacion extends JFrame {
         respuestas.clear();
         envioForzadoPorTimer = false;
         mostrarPreguntas();
+    }
+
+    // Método auxiliar para obtener el nombre del estudiante desde la sesión
+    private String obtenerNombreEstudianteDesdeSesion() {
+        if (com.mycompany.programa1matriculacalificaciones.util.SesionActual.estaLogueado()) {
+            String usuarioId = com.mycompany.programa1matriculacalificaciones.util.SesionActual.getUsuarioId();
+
+            // Buscar el estudiante en el servicio de administrador
+            com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService adminService = 
+                new com.mycompany.programa1matriculacalificaciones.servicio.AdministradorService();
+            com.mycompany.programa1matriculacalificaciones.modelo.Estudiante estudiante = 
+                adminService.buscarPorId(usuarioId);
+
+            if (estudiante != null) {
+                // Construir el nombre completo
+                String nombreCompleto = estudiante.getNombre();
+                if (estudiante.getApellido1() != null && !estudiante.getApellido1().isEmpty()) {
+                    nombreCompleto += " " + estudiante.getApellido1();
+                }
+                if (estudiante.getApellido2() != null && !estudiante.getApellido2().isEmpty()) {
+                    nombreCompleto += " " + estudiante.getApellido2();
+                }
+                return nombreCompleto;
+            }
+        }
+        return null;
+    }
+
+    // NUEVO MÉTODO: Cargar solo evaluaciones asignadas al estudiante
+    private List<Evaluacion> cargarEvaluacionesEstudiante() {
+        List<Evaluacion> evaluacionesEstudiante = new ArrayList<>();
+        
+        if (!com.mycompany.programa1matriculacalificaciones.util.SesionActual.estaLogueado()) {
+            JOptionPane.showMessageDialog(this, 
+                "Debe iniciar sesión para ver las evaluaciones", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return evaluacionesEstudiante;
+        }
+        
+        String estudianteId = com.mycompany.programa1matriculacalificaciones.util.SesionActual.getUsuarioId();
+        
+        try {
+            EvaluacionAsignadaService asignacionService = new EvaluacionAsignadaService();
+            List<EvaluacionAsignada> asignaciones = asignacionService.listarPorEstudiante(estudianteId);
+            
+            for (EvaluacionAsignada asignacion : asignaciones) {
+                evaluacionesEstudiante.add(asignacion.getEvaluacion());
+            }
+            
+            if (evaluacionesEstudiante.isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "No tiene evaluaciones asignadas en sus grupos.", 
+                    "Información", JOptionPane.INFORMATION_MESSAGE);
+            }
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al cargar evaluaciones: " + e.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        return evaluacionesEstudiante;
     }
 
     @Override
@@ -969,5 +1053,4 @@ public class FrmRealizarEvaluacion extends JFrame {
             this.letra = letra;
         }
     }
-
 }
