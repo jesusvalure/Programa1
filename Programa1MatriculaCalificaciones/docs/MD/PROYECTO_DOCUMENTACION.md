@@ -2,7 +2,7 @@
 
 Programa: Programa1 - Matrícula y Calificaciones
 
-Autores: Equipo de desarrollo (repositorio: Programa1)
+Autores: Juan Vicente Naranjo, Jesus Valverde Ureña
 
 Fecha: 08/11/2025
 
